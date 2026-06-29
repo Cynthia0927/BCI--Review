@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>机器人传感技术 · 期末复习台</title>
+<style>
+:root{
+  --paper:#F5F6F8; --surface:#FFFFFF; --surface-2:#FBFCFD;
+  --ink:#15202E; --ink-soft:#4B5868; --ink-faint:#8A95A3;
+  --line:#E3E7EC; --line-soft:#EEF1F4;
+  --signal:#C26A2E;          /* 信号琥珀：必背 / eyebrow */
+  --signal-bg:#FBF1E7;
+  --probe:#1E5F8C;           /* 探针蓝：结构 / 章节 */
+  --probe-bg:#EAF2F8;
+  --good:#2C7A57; --good-bg:#E9F4EE;
+  --warn:#B23A48; --warn-bg:#FBEDEE;
+  --shadow:0 1px 2px rgba(20,32,46,.05), 0 8px 24px rgba(20,32,46,.05);
+  --mono:'JetBrains Mono','SFMono-Regular',ui-monospace,Menlo,Consolas,monospace;
+  --sans:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei','Segoe UI',Roboto,'Hiragino Sans GB',sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:var(--sans); font-size:16px; line-height:1.78;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1180px; margin:0 auto; padding:0 22px}
+
+/* ---- top bar ---- */
+header.top{
+  position:sticky; top:0; z-index:50; background:rgba(245,246,248,.92);
+  backdrop-filter:saturate(140%) blur(8px); border-bottom:1px solid var(--line);
+}
+.top-inner{display:flex; align-items:center; gap:18px; padding:14px 22px; max-width:1180px; margin:0 auto; flex-wrap:wrap}
+.brand{display:flex; align-items:baseline; gap:12px; min-width:0}
+.brand .ey{font-family:var(--mono); font-size:11px; letter-spacing:.18em; color:var(--signal); text-transform:uppercase}
+.brand h1{font-size:18px; margin:0; font-weight:800; letter-spacing:-.01em; white-space:nowrap}
+.brand .sub{font-size:12.5px; color:var(--ink-faint)}
+.tabs{display:flex; gap:6px; margin-left:auto; flex-wrap:wrap}
+.tab{
+  font-family:var(--mono); font-size:12.5px; letter-spacing:.02em;
+  border:1px solid var(--line); background:var(--surface); color:var(--ink-soft);
+  padding:7px 14px; border-radius:999px; cursor:pointer; transition:all .15s;
+}
+.tab:hover{border-color:var(--probe); color:var(--probe)}
+.tab.active{background:var(--ink); color:#fff; border-color:var(--ink)}
+
+/* ---- hero ---- */
+.hero{padding:30px 0 8px}
+.trace{height:34px; width:100%; display:block; margin:14px 0 0; opacity:.9}
+.hero .lead{font-size:15px; color:var(--ink-soft); max-width:720px; margin:10px 0 0}
+.hero .pillrow{display:flex; gap:10px; flex-wrap:wrap; margin-top:16px}
+.pill{font-family:var(--mono); font-size:12px; padding:5px 11px; border-radius:8px; border:1px solid var(--line); background:var(--surface); color:var(--ink-soft)}
+.pill b{color:var(--ink)}
+
+/* ---- panels ---- */
+.panel{display:none; padding:26px 0 90px}
+.panel.show{display:block}
+
+/* ---- guide ---- */
+.chapter{margin:0 0 26px; background:var(--surface); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow); overflow:hidden}
+.ch-head{display:flex; align-items:center; gap:16px; padding:18px 22px; cursor:pointer; user-select:none}
+.ch-num{font-family:var(--mono); font-size:13px; font-weight:700; color:#fff; background:var(--probe); width:38px; height:38px; display:grid; place-items:center; border-radius:10px; flex:none}
+.ch-num.k{background:var(--signal)}
+.ch-title{font-size:18px; font-weight:800; margin:0}
+.ch-meta{font-size:12.5px; color:var(--ink-faint); margin-top:2px; font-family:var(--mono)}
+.ch-tog{margin-left:auto; font-family:var(--mono); font-size:12px; color:var(--ink-faint); border:1px solid var(--line); border-radius:8px; padding:4px 10px}
+.ch-body{display:none; padding:4px 22px 22px}
+.chapter.open .ch-body{display:block}
+.chapter.open .ch-tog::after{content:' 收起'}
+.chapter:not(.open) .ch-tog::after{content:' 展开'}
+
+.sec{padding:18px 0; border-top:1px solid var(--line-soft)}
+.sec:first-child{border-top:0}
+.sec h3{font-size:15.5px; margin:0 0 8px; font-weight:800; letter-spacing:-.005em; display:flex; align-items:center; gap:9px}
+.sec h3 .dot{width:7px; height:7px; border-radius:50%; background:var(--probe); flex:none}
+.sec p{margin:7px 0; color:var(--ink-soft)}
+.sec p strong, .sec li strong{color:var(--ink); font-weight:700}
+.sec ul{margin:7px 0; padding-left:20px}
+.sec li{margin:4px 0; color:var(--ink-soft)}
+.kbd{font-family:var(--mono); font-size:.86em; background:var(--surface-2); border:1px solid var(--line); border-radius:5px; padding:1px 6px; color:var(--ink)}
+.formula{font-family:var(--mono); font-size:14px; background:#0F1A26; color:#E8EEF4; padding:10px 14px; border-radius:10px; display:block; margin:10px 0; overflow-x:auto; line-height:1.7}
+.formula .v{color:#E0A360}
+.inl{font-family:var(--mono); font-size:.92em; background:var(--surface-2); border:1px solid var(--line); border-radius:5px; padding:0 5px}
+
+/* callouts */
+.call{border-radius:12px; padding:12px 15px; margin:12px 0; font-size:14.5px; line-height:1.7}
+.call .lab{font-family:var(--mono); font-size:11px; letter-spacing:.12em; text-transform:uppercase; font-weight:700; display:block; margin-bottom:3px}
+.must{background:var(--signal-bg); border:1px solid #EAD3BD}
+.must .lab{color:var(--signal)}
+.pit{background:var(--warn-bg); border:1px solid #EFC9CE}
+.pit .lab{color:var(--warn)}
+.tip{background:var(--probe-bg); border:1px solid #CFE0EE}
+.tip .lab{color:var(--probe)}
+.exam{background:#FFF8E6; border:1px solid #F0E0AC}
+.exam .lab{color:#9A7B12}
+
+/* tables */
+table.t{width:100%; border-collapse:collapse; margin:12px 0; font-size:13.8px; background:var(--surface)}
+table.t th,table.t td{border:1px solid var(--line); padding:8px 11px; text-align:left; vertical-align:top}
+table.t th{background:var(--surface-2); font-weight:700; font-size:13px; color:var(--ink)}
+table.t td{color:var(--ink-soft)}
+table.t tr td:first-child{font-weight:600; color:var(--ink); white-space:nowrap}
+
+/* ---- question bank ---- */
+.qbar{position:sticky; top:62px; z-index:30; background:rgba(245,246,248,.94); backdrop-filter:blur(8px); padding:14px 0 12px; border-bottom:1px solid var(--line); margin-bottom:18px}
+.filters{display:flex; gap:18px; flex-wrap:wrap; align-items:center}
+.fgroup{display:flex; gap:6px; align-items:center; flex-wrap:wrap}
+.fgroup .gl{font-family:var(--mono); font-size:11px; letter-spacing:.1em; color:var(--ink-faint); text-transform:uppercase; margin-right:2px}
+.chip{font-family:var(--mono); font-size:12.5px; border:1px solid var(--line); background:var(--surface); color:var(--ink-soft); padding:5px 12px; border-radius:8px; cursor:pointer; transition:.13s}
+.chip:hover{border-color:var(--probe)}
+.chip.on{background:var(--probe); color:#fff; border-color:var(--probe)}
+.chip.on.k{background:var(--signal); border-color:var(--signal)}
+.qstat{margin-left:auto; font-family:var(--mono); font-size:12.5px; color:var(--ink-soft)}
+.qstat b{color:var(--good)}
+
+.q{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:16px 18px; margin:0 0 14px; box-shadow:var(--shadow)}
+.q .qh{display:flex; align-items:center; gap:9px; margin-bottom:9px; flex-wrap:wrap}
+.qtag{font-family:var(--mono); font-size:10.5px; letter-spacing:.06em; padding:3px 8px; border-radius:6px; text-transform:uppercase; font-weight:700}
+.qtag.c1{background:var(--probe-bg); color:var(--probe)}
+.qtag.c2{background:var(--signal-bg); color:var(--signal)}
+.qtag.c3{background:var(--good-bg); color:var(--good)}
+.qtype{font-family:var(--mono); font-size:10.5px; color:var(--ink-faint); border:1px solid var(--line); padding:3px 8px; border-radius:6px}
+.qid{font-family:var(--mono); font-size:11px; color:var(--ink-faint); margin-left:auto}
+.qtext{font-size:15px; font-weight:600; color:var(--ink); line-height:1.7}
+.qtext .blk{font-family:var(--mono); border-bottom:1.5px solid var(--ink-faint); padding:0 14px}
+
+.opts{margin:11px 0 0; display:grid; gap:8px}
+.opt{display:flex; gap:10px; align-items:flex-start; border:1px solid var(--line); border-radius:10px; padding:9px 12px; cursor:pointer; transition:.12s; font-size:14.3px; color:var(--ink-soft)}
+.opt:hover{border-color:var(--probe); background:var(--surface-2)}
+.opt .ol{font-family:var(--mono); font-weight:700; color:var(--ink-faint); flex:none}
+.opt.correct{background:var(--good-bg); border-color:#9DCDB4; color:var(--ink)}
+.opt.correct .ol{color:var(--good)}
+.opt.wrong{background:var(--warn-bg); border-color:#E3AEB4; color:var(--ink)}
+.opt.wrong .ol{color:var(--warn)}
+.opt.locked{cursor:default}
+
+.reveal-btn{margin-top:11px; font-family:var(--mono); font-size:12.5px; background:var(--ink); color:#fff; border:0; padding:8px 16px; border-radius:9px; cursor:pointer}
+.reveal-btn:hover{opacity:.9}
+.ans{display:none; margin-top:12px; border-top:1px dashed var(--line); padding-top:12px}
+.q.opened .ans{display:block}
+.ans .al{font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--good); font-weight:700; margin-bottom:4px}
+.ans .akey{font-size:15px; font-weight:700; color:var(--ink); margin:0 0 6px}
+.ans .ex{font-size:14px; color:var(--ink-soft); line-height:1.72}
+.ans .ex strong{color:var(--ink)}
+
+/* ---- memorize ---- */
+.mgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:14px}
+.mcard{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:15px 17px; box-shadow:var(--shadow); cursor:pointer; position:relative}
+.mcard .mt{font-family:var(--mono); font-size:10.5px; letter-spacing:.08em; color:var(--signal); text-transform:uppercase; font-weight:700; margin-bottom:6px}
+.mcard .mq{font-size:14.6px; font-weight:700; color:var(--ink); line-height:1.6}
+.mcard .ma{display:none; margin-top:10px; padding-top:10px; border-top:1px dashed var(--line); font-size:14px; color:var(--ink-soft); line-height:1.7}
+.mcard.flip .ma{display:block}
+.mcard .hint{font-family:var(--mono); font-size:10.5px; color:var(--ink-faint); position:absolute; top:14px; right:15px}
+.mcard.flip .hint{color:var(--good)}
+
+.note{font-size:12.5px; color:var(--ink-faint); margin:16px 0 0; line-height:1.7; font-family:var(--mono)}
+.controls{display:flex; gap:8px; margin:0 0 16px; flex-wrap:wrap}
+.ctrl{font-family:var(--mono); font-size:12px; border:1px solid var(--line); background:var(--surface); color:var(--ink-soft); padding:6px 12px; border-radius:8px; cursor:pointer}
+.ctrl:hover{border-color:var(--ink); color:var(--ink)}
+footer{padding:30px 0 50px; text-align:center; color:var(--ink-faint); font-family:var(--mono); font-size:11.5px; border-top:1px solid var(--line)}
+@media (max-width:640px){
+  body{font-size:15px}
+  .brand h1{font-size:16px}
+  .qbar{top:0; position:static}
+  .qstat{margin-left:0; width:100%}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important; scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-inner">
+    <div class="brand">
+      <span class="ey">Sensing&nbsp;Tech</span>
+      <div>
+        <h1>机器人传感技术 · 期末复习台</h1>
+        <div class="sub">第一章 感知系统 · 第二章 基本知识 · 第三章 电阻式传感器</div>
+      </div>
+    </div>
+    <nav class="tabs">
+      <button class="tab active" data-tab="guide">复习指南</button>
+      <button class="tab" data-tab="bank">题库</button>
+      <button class="tab" data-tab="mem">必背速记</button>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+  <section class="hero">
+    <svg class="trace" viewBox="0 0 1180 34" preserveAspectRatio="none" aria-hidden="true">
+      <line x1="0" y1="17" x2="1180" y2="17" stroke="#E3E7EC" stroke-width="1"/>
+      <path d="M0 17 H120 l8 -11 l10 22 l9 -16 l8 5 H300 q40 0 60 -12 t60 12 H560 l10 -14 l12 14 H760 q30 0 50 9 t60 -9 H1180"
+            fill="none" stroke="#C26A2E" stroke-width="1.6" stroke-linejoin="round" opacity=".85"/>
+      <circle cx="138" cy="28" r="2.4" fill="#1E5F8C"/>
+      <circle cx="570" cy="3" r="2.4" fill="#1E5F8C"/>
+      <circle cx="870" cy="26" r="2.4" fill="#1E5F8C"/>
+    </svg>
+    <p class="lead">考试范围严格限定为这三章 PPT(系统讲解部分),题型为<strong>选择、填空、简答</strong>。<strong>第二章是重中之重</strong>;动态特性只考概念/方法/特性,不考计算。先读指南、背"必背"、再刷题——刷完即覆盖全部考点。</p>
+    <div class="pillrow">
+      <span class="pill"><b>题库</b> 选择即点即判</span>
+      <span class="pill"><b>必背速记</b> 翻卡自测</span>
+      <span class="pill"><b>橙色块</b>=必背 / <b>红色块</b>=易错陷阱 / <b>黄色块</b>=老师点名考点</span>
+    </div>
+  </section>
+
+  <!-- GUIDE -->
+  <section class="panel show" id="panel-guide"></section>
+
+  <!-- BANK -->
+  <section class="panel" id="panel-bank">
+    <div class="qbar">
+      <div class="filters">
+        <div class="fgroup"><span class="gl">章节</span>
+          <button class="chip on" data-f="ch" data-v="all">全部</button>
+          <button class="chip" data-f="ch" data-v="1">第1章</button>
+          <button class="chip k" data-f="ch" data-v="2">第2章★</button>
+          <button class="chip" data-f="ch" data-v="3">第3章</button>
+        </div>
+        <div class="fgroup"><span class="gl">题型</span>
+          <button class="chip on" data-f="ty" data-v="all">全部</button>
+          <button class="chip" data-f="ty" data-v="choice">选择</button>
+          <button class="chip" data-f="ty" data-v="blank">填空</button>
+          <button class="chip" data-f="ty" data-v="short">简答</button>
+        </div>
+        <span class="qstat" id="qstat"></span>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="ctrl" id="expandAll">展开全部答案</button>
+      <button class="ctrl" id="collapseAll">收起全部答案</button>
+      <button class="ctrl" id="resetChoice">重置选择记录</button>
+    </div>
+    <div id="qlist"></div>
+  </section>
+
+  <!-- MEM -->
+  <section class="panel" id="panel-mem">
+    <div class="controls">
+      <button class="ctrl" id="flipAll">全部翻面</button>
+      <button class="ctrl" id="unflipAll">全部复位</button>
+    </div>
+    <p class="note">点击卡片翻面看答案。这一组是老师明确"必背 / 必考 / 必区分"的内容,考前过一遍。</p>
+    <div class="mgrid" id="mgrid"></div>
+  </section>
+</div>
+
+<footer>制作依据:三章 PPT · 你的 Mubu 笔记 · 老师复习课录音 &nbsp;|&nbsp; 重点权重:第2章 > 第3章 > 第1章</footer>
+
+<script>
+/* =========================================================
+   复习指南数据
+   item types: p / list / must / pit / tip / exam / formula / table / def
+   ========================================================= */
+const GUIDE=[
+{ch:1,key:false,title:"第一章 机器人感知系统",meta:"CH-01 · 概念/分类为主 · 选择填空",sections:[
+ {h:"感知 = 感觉过程 + 知觉过程",body:[
+   {t:'p',x:'<strong>感知</strong>:意识对内外界信息的觉察、感觉、注意、知觉的一系列过程。'},
+   {t:'p',x:'<strong>感觉过程</strong>:感知系统检测到环境信息及内部状态<strong>所对应的物理量</strong>(偏硬件采集)。'},
+   {t:'p',x:'<strong>知觉过程</strong>:构建环境与状态模型,了解正确的状态与所在环境信息(偏算法理解)。'},
+   {t:'tip',l:'记忆',x:'一句话:传感器是机器人的"<strong>感觉器官</strong>",算法是"<strong>大脑</strong>"。本课关注的是<strong>感知系统</strong>,而不仅是传感器器件。'},
+ ]},
+ {h:"视觉感知的五个分层",body:[
+   {t:'p',x:'由低到高:<strong>像素(原始亮度值)→ 边缘(梯度变化)→ 特征(角点与纹理)→ 目标(独立物体)→ 语义(场景理解)</strong>。'},
+   {t:'exam',l:'考点',x:'顺序常作填空/排序题,记住"<strong>像素—边缘—特征—目标—语义</strong>"五级递进。'},
+ ]},
+ {h:"传感器的定义、组成",body:[
+   {t:'p',x:'<strong>定义(国标 GB/T 7665-2005)</strong>:能感受被测量并按一定规律转换成可用输出信号的器件或装置,通常由<strong>敏感元件</strong>和<strong>转换元件</strong>组成。'},
+   {t:'p',x:'三个英文要区分:<span class="inl">transducer</span> 换能器(一种物理量→另一种物理量)、<span class="inl">sensor</span> 传感器(物理信号→电信号)、<span class="inl">actuator</span> 执行器(电能→物理能/机械能)。'},
+   {t:'p',x:'<strong>组成(输出为电量时)</strong>:敏感元件 → 转换元件 → 测量电路,外加(可选)辅助电源。其中敏感元件与转换元件<strong>可能合二为一</strong>,有的传感器<strong>不需要辅助电源</strong>。'},
+   {t:'def',pairs:[
+     ['敏感元件','直接感受被测量,输出与被测量成确定关系的某一物理量(易于转换为电量),反映物理规律。'],
+     ['转换元件','又称变换器,把敏感元件感受到的非电量转换成电量。'],
+     ['测量电路','把电信号变换成便于记录/显示/处理/控制的有用电信号,又称"信号调理电路"。'],
+     ['辅助电源','给转换元件/测量电路供能,部分传感器不需要。'],
+   ]},
+   {t:'formula',x:'被测量 →[敏感元件]→ 另一非电量 →[转换元件]→ 电信号 →[测量电路]→ 可用电信号(输出)'},
+ ]},
+ {h:"传感器分类(★选择题核心)",body:[
+   {t:'exam',l:'考点',x:'老师明确这是选择题点。不要求全背,但<strong>每种分法的依据和典型例子要会判断</strong>。'},
+   {t:'table',head:['分类依据','类型 / 例子'],rows:[
+     ['① 按被测量','机械量(位移/力/速度/加速度)、热工量(温度/流量/压力)、物性参量(浓度/酸碱度)、状态参量(裂纹/泄漏/磨损)'],
+     ['② 按工作原理','电阻式、电感式、电容式、压电式、光电式…(以信号转换原理命名)'],
+     ['③ 按基本效应','物理传感器、化学传感器、生物传感器'],
+     ['④ 按能量关系','能量控制型(外源型)、能量转换型(自源型)'],
+     ['⑤ 按输出量','模拟式、数字式'],
+     ['其他','按测量方式:接触式 / 非接触式'],
+   ]},
+   {t:'p',x:'<strong>物理传感器细分</strong>:① 物性型——靠敏感元件<strong>本身物理特性</strong>变化(压电式、光电式、水银温度计);② 结构型——靠<strong>结构参数(几何尺寸/形状)</strong>变化转换为电阻/电感/电容(变极距型电容、电位器式位移)。'},
+   {t:'p',x:'<strong>化学传感器</strong>:靠化学效应(化学吸附、电化学反应),如气体传感器。<strong>生物传感器</strong>:靠生物活性物质选择性识别,如葡萄糖氧化酶传感器。'},
+   {t:'p',x:'<strong>能量控制型(外源型)</strong>:外部供能、被测量控制供能变化,例:电阻应变片。<strong>能量转换型(自源型)</strong>:被测对象直接输入能量,例:热电偶、压电式加速度计。'},
+ ]},
+ {h:"机器人传感器 + 内部/外部分类(★必会举例)",body:[
+   {t:'p',x:'<strong>机器人传感器</strong>:能把机器人目标物特性(或参量)变换为电量输出的装置。'},
+   {t:'exam',l:'考点',x:'老师强调:内/外部传感器分类<strong>必须掌握,且要会举例</strong>。两个分类视角:① 检测对象;② 安装位置。'},
+   {t:'table',head:['','内部传感器','外部传感器'],rows:[
+     ['检测对象','感知机器人<strong>自身内部状态</strong>,用以调整/控制自身行动','感知<strong>周围环境、目标</strong>状态,使机器人有自校正/自适应能力'],
+     ['安装','装入机器人内部,属于<strong>控制器的一部分</strong>','检测对外界的感应,<strong>不属于</strong>控制器固有部件'],
+     ['举例','位置、速度、加速度、平衡、力(矩);电机转速;内部传动机构位移','视觉、听觉、触觉、嗅觉、接近觉、距离、力(矩);图像、超声测距'],
+   ]},
+   {t:'pit',l:'易错',x:'"力(矩)"两边都可能出现:作为关节内力监控属内部,作为外部接触力/腕力属外部。判断看<strong>检测对象是自身还是外界</strong>。'},
+ ]},
+ {h:"机器人感知系统的组成(整张流程图)",body:[
+   {t:'p',x:'三段式:<strong>感知内容 → 硬件 → 软件</strong>。'},
+   {t:'list',items:[
+     '<strong>感知内容</strong>:内部状态(角速度/角加速度、线速度/加速度、姿态、方位) + 外部环境(力/触觉、视觉、听觉、嗅觉、接近/距离)。',
+     '<strong>硬件(感觉器官与神经传输)</strong>:传感器 → 信号调理(放大/滤波/降噪)→ 接口电路(转成计算机可识别的数字信号并传输)。',
+     '<strong>软件(大脑理解与分析)</strong>:数据校验(剔除错误/异常)→ 信息融合(整合多传感器、消除单一传感器不确定性、调用传感器数据库)→ 决策输出(给出感知结论)。',
+   ]},
+   {t:'tip',l:'类比',x:'传感器=眼睛/皮肤,硬件=把信号传给大脑,软件=大脑皮层理解判断。老师用麦克风录音举例:接口电路里有驱动,丢帧要做数据校验,模型阶段是信息融合,存储靠数据库,最后决策输出成文字。'},
+ ]},
+ {h:"为什么感知困难 / 发展趋势",body:[
+   {t:'p',x:'感知困难的四个原因:<strong>传感器噪声、数据不完整、环境复杂、不确定性</strong> → 这就是为什么需要"<strong>融合与滤波</strong>"。'},
+   {t:'p',x:'<strong>三阶段发展历程</strong>:① 结构型(1950-1969,靠结构参量变化)→ ② 固体型(1970-1999,靠热电/霍尔/光敏等材料效应)→ ③ 智能型(2000-至今,处理器+数据处理,自诊断/记忆/多参量/联网)。形式演进:分离式 → 单片集成式 → 智能化 → 网络系统化。'},
+   {t:'p',x:'<strong>发展趋势(总结)</strong>:① 集成化、多功能化、智能化、网络化;② 多传感器信息融合技术;③ 感知系统标准与规范化。<strong>核心应用:SLAM</strong>(Simultaneous Localization and Mapping,同步定位与建图)。'},
+ ]},
+]},
+
+{ch:2,key:true,title:"第二章 传感器基本知识",meta:"CH-02 · 重中之重 · 选择填空简答全覆盖",sections:[
+ {h:"基本特性 + 影响因素(总览图)",body:[
+   {t:'p',x:'<strong>传感器基本特性</strong>:传感器输入与输出的关系特性,是<strong>内部结构参数作用关系的外在表现</strong>,分<strong>静态特性</strong>与<strong>动态特性</strong>。'},
+   {t:'p',x:'<strong>测量不准 = 内部因素 + 外部因素</strong>。<strong>外部因素</strong>(不由传感器内部参数决定):环境、测量方法、测量员、其他干扰噪声;<strong>内部因素</strong>(由出厂后工作原理/材料/组装决定):线性度、灵敏度、分辨率、迟滞、重复性、零漂、阈值、精确度、测量范围、时间常数、超调、容差等。'},
+ ]},
+ {h:"静态特性 — 定义与模型",body:[
+   {t:'p',x:'<strong>静态特性</strong>:被测量<strong>不随时间变化或变化很缓慢</strong>(稳态输入)时,输入与输出的关系。'},
+   {t:'formula',x:'静态模型:y = a<span class="v">₁</span>x + a<span class="v">₂</span>x² + … + a<span class="v">ₙ</span>xⁿ'},
+   {t:'tip',l:'类比',x:'室温几乎不变时看读数是否贴近真值=准确性;反复测同一温度值波动小=重复性好——这些都属静态。而高速产线上拍快速运动部件,效果由动态特性决定。'},
+ ]},
+ {h:"① 线性度",body:[
+   {t:'p',x:'<strong>定义</strong>:传感器输入与输出间成线性关系的程度。用<strong>最大非线性绝对误差 ΔL<sub>max</sub></strong> 与<strong>满量程输出 Y<sub>FS</sub></strong> 之比表示。'},
+   {t:'formula',x:'γ<span class="v">L</span> = ± ΔL<span class="v">max</span> / Y<span class="v">FS</span>'},
+   {t:'pit',l:'易错',x:'<strong>满量程输出 = max − min</strong>(不是最大值本身)。线性度也叫"非线性度/线性度误差",是比率、<strong>无量纲</strong>。'},
+   {t:'p',x:'实际输入-输出曲线是曲线,为得到均匀刻度需用一条直线拟合,这一过程叫"<strong>线性化</strong>"。'},
+   {t:'table',head:['拟合方法','做法','特点'],rows:[
+     ['理论直线法','理论分析推导,与测试值无关','简单,非线性误差大'],
+     ['端点(连线)法','特性曲线两端点相连','简单,非线性误差大'],
+     ['最佳直线法','与曲线正、负偏差相等且最小','精度高,求解复杂'],
+     ['最小二乘法','与曲线的残差平方和最小','精度高,<strong>普遍推荐</strong>'],
+     ['硬件线性化法','两只非线性传感器差动 / 线性与非线性元件串并联','实时性好,实现复杂、成本高'],
+   ]},
+   {t:'exam',l:'考点',x:'最小二乘法因为<strong>有解析公式可直接代入计算</strong>而最常用、精度高、推荐;端点法/理论法误差大。'},
+ ]},
+ {h:"② 灵敏度(★判断陷阱)",body:[
+   {t:'p',x:'<strong>定义</strong>:稳态下输出量变化对输入量变化的比值,即对输入-输出曲线求微分。'},
+   {t:'formula',x:'S = dy / dx'},
+   {t:'pit',l:'易错·老师点名',x:'判断题:"灵敏度越大越好" —— <strong>错</strong>。灵敏度过大时,<strong>微小噪声/干扰也会被放大</strong>影响输出。要在捕捉微小波动与抗噪间权衡。'},
+   {t:'tip',l:'延伸(第3章相关)',x:'同一应变片:<strong>材料本身灵敏度 ≠ 制作工艺/形状灵敏度 ≠ 最终成品灵敏度</strong>。横向效应、胶层吸收应变都会让成品灵敏度下降。'},
+ ]},
+ {h:"③ 分辨力 vs 分辨率(★必区分)",body:[
+   {t:'p',x:'<strong>共同定义</strong>:能感知/检测到的<strong>最小输入信号增量</strong>(反映感受被测量微小变化的能力)。'},
+   {t:'must',l:'必区分',x:'<strong>分辨力 = 绝对值(带物理单位)</strong>,如 0.01mm、0.1mg、10μs。<strong>分辨率 = 相对值(占满量程的百分数)</strong>,如 0.1%、0.02%。'},
+   {t:'tip',l:'例',x:'压力传感器测 0~100N → 转 0~5V → 10 位 A/D。则<strong>分辨率 = 1/2¹⁰</strong>,即能检测的最小输入增量为量程的 1/2¹⁰。'},
+ ]},
+ {h:"④ 迟滞　⑤ 重复性",body:[
+   {t:'p',x:'<strong>迟滞</strong>:相同测量条件下,对同一输入,<strong>正行程(小→大)</strong>与<strong>反行程(大→小)</strong>输出不相等的现象。用正反行程最大输出差值 ΔH<sub>max</sub> 对满量程之比表示。'},
+   {t:'formula',x:'γ<span class="v">H</span> = ± ΔH<span class="v">max</span> / Y<span class="v">FS</span> × 100%'},
+   {t:'pit',l:'易错',x:'迟滞也是<strong>比率、无单位</strong>。成因(宏观)是<strong>惯性</strong>:启动时倾向保持原状态,所以上行曲线常向下凸(前段要更费力)。'},
+   {t:'p',x:'<strong>重复性</strong>:输入按同一方向做全量程<strong>多次</strong>测试时,所得输入-输出曲线一致的程度。用正反行程中的<strong>最大不重复误差 ΔR<sub>max</sub></strong> 对满量程之比表示。'},
+   {t:'formula',x:'γ<span class="v">R</span> = ± ΔR<span class="v">max</span> / Y<span class="v">FS</span> × 100%'},
+ ]},
+ {h:"⑥ 漂移　⑦ 阈值",body:[
+   {t:'p',x:'<strong>漂移</strong>:输入不变时,输出<strong>随时间或温度</strong>而变化。原因:① 自身结构参数老化;② 环境(温度/压力/湿度)变化。分<strong>零点漂移</strong>与<strong>灵敏度漂移</strong>(灵敏度漂移一般使斜率慢慢变小);总误差 = 零漂 + 灵敏度漂移。'},
+   {t:'p',x:'<strong>阈值</strong>:输入小于某量值时输出极微小或无输出(像进入死区),导致无法准确检测。<strong>产生可测输出变化量时的最小输入量值即为阈值</strong>。'},
+   {t:'pit',l:'辨析',x:'阈值 vs 分辨力:阈值是"从零开始<strong>有没有反应</strong>"的最小输入;分辨力是工作区内"能<strong>分辨出变化</strong>"的最小增量。'},
+ ]},
+ {h:"⑧ 静态误差 / 精确度(★必区分)",body:[
+   {t:'p',x:'<strong>静态误差(精确度)</strong>:满量程内任一点输出值相对其理论值的可能偏离(逼近)程度,通常由<strong>线性度、迟滞</strong>构成的系统误差与随机误差综合得到。'},
+   {t:'must',l:'必区分·老师点名',x:'<strong>精密度</strong>=输出值的<strong>分散性</strong>=<strong>随机误差</strong>的标志(打靶很集中但可能偏)。<strong>准确度/正确度</strong>=输出值与<strong>真值的偏离</strong>=<strong>系统误差</strong>的标志(平均靠近靶心)。<strong>精确度</strong>=两者综合(又准又密)。'},
+   {t:'p',x:'静态误差计算思路(不要求算,理解即可):把<strong>线性度误差 γ<sub>L</sub>、迟滞误差 γ<sub>H</sub>、重复性误差 γ<sub>R</sub></strong> 三者各自平方后求和开根 → 得综合误差,再落到 2~3 倍标准差范围。'},
+   {t:'formula',x:'γ<span class="v">s</span> = ±√( γ<span class="v">L</span>² + γ<span class="v">H</span>² + γ<span class="v">R</span>² )'},
+ ]},
+ {h:"动态特性 — 定义与分析框架",body:[
+   {t:'p',x:'实际被测信号常随时间变化(动态信号)。希望传感器能<strong>迅速测出幅值且无失真地再现波形</strong>。'},
+   {t:'p',x:'<strong>动态特性</strong>:输出对动态输入(激励)的响应特性。<strong>动态误差</strong>:敏感材料对输入变化有惯性,输出与输入不是完全相同的时间函数,二者之差即动态误差。'},
+   {t:'must',l:'必记',x:'两套分析方法:<strong>时域 → 瞬态(阶跃)响应法</strong>;<strong>频域 → 频率响应法</strong>。激励输入信号:阶跃、指数、斜坡、冲激(时域),正弦(频域)。'},
+   {t:'p',x:'<strong>传感器模型</strong>:用常系数线性微分方程描述输入输出,一般简化为<strong>零阶、一阶、二阶</strong>。<strong>传递函数</strong>:初始条件为零时,输出量(响应)的拉氏变换与输入量(激励)拉氏变换之比 H(s)=Y(s)/X(s)。'},
+   {t:'exam',l:'范围说明',x:'动态特性<strong>不要求计算</strong>,但基本概念、方法、特性必须熟知(选择/填空/简答)。'},
+ ]},
+ {h:"一阶 / 二阶传感器的动态指标",body:[
+   {t:'p',x:'<strong>一阶传感器(=惯性系统)时域指标</strong>:'},
+   {t:'list',items:[
+     '<strong>时间常数 τ</strong>:输出上升到稳态值 <strong>63.2%</strong> 所需时间;τ 越小响应越快(惯性越小)。',
+     '<strong>延迟时间 t<sub>d</sub></strong>:输出达到稳态值 <strong>50%</strong> 所需时间。',
+     '<strong>上升时间 t<sub>r</sub></strong>:无振荡时为 <strong>10%→90%</strong> 所需时间;有振荡时为从零到<strong>第一次</strong>到达稳态值的时间。',
+   ]},
+   {t:'p',x:'<strong>二阶传感器时域指标</strong>:'},
+   {t:'list',items:[
+     '<strong>峰值时间 t<sub>p</sub></strong>:响应曲线到达<strong>第一个峰值</strong>的时间。',
+     '<strong>超调量 σ</strong> = [y(t<sub>p</sub>) − y(∞)] / y(∞):输出最大值超过稳态值的比值。',
+     '<strong>稳态误差</strong>:t→∞ 时阶跃响应实际值与期望值之差。',
+     '<strong>响应(调节)时间 t<sub>s</sub></strong>:响应衰减到与稳态值之差不超过 <strong>±5% 或 ±2%</strong> 所需时间(过渡过程时间)。',
+   ]},
+   {t:'must',l:'必记·二阶两大参数',x:'<strong>固有角频率 ω<sub>n</sub></strong>(无阻尼自由振荡频率,由质量/弹簧等结构决定)+ <strong>阻尼比 ζ</strong>(决定是否振荡及衰减快慢)。'},
+   {t:'table',head:['阻尼比 ζ','状态','响应'],rows:[
+     ['ζ = 0','无阻尼','等幅振荡,永不衰减'],
+     ['0 < ζ < 1','欠阻尼','振荡衰减后稳定,有超调(ζ 越小超调越大)'],
+     ['ζ = 1','临界阻尼','不振荡,最快单调到位'],
+     ['ζ > 1','过阻尼','不振荡,但爬升慢、迟到'],
+     ['ζ = 0.707','最佳阻尼','响应快+超调小的最佳折中,工程首选'],
+   ]},
+   {t:'must',l:'必记·频率条件',x:'为减小动态误差、扩大频响范围,要提高 ω<sub>n</sub>。要求 <strong>ω<sub>n</sub> ≥ (3~5)ω</strong>(被测信号频率 ω),<strong>实测常取 ω<sub>n</sub> ≥ 10ω</strong>。'},
+   {t:'p',x:'<strong>频率响应</strong>:幅频特性 A(ω)=输出/输入幅度比随频率变化,也叫<strong>动态灵敏度(增益)</strong>;相频特性 Φ(ω)=输出相位随频率变化,对传感器<strong>Φ 通常为负(输出滞后输入)</strong>。'},
+   {t:'tip',l:'老师提示',x:'计算中若一个量比另一个大一个数量级以上(差≥10倍),小值可<strong>忽略</strong>。'},
+ ]},
+ {h:"传感器校准与标定",body:[
+   {t:'p',x:'<strong>标定</strong>:用标准仪器对<strong>新生产</strong>的传感器做技术检定和标度,通过实验建立输入输出关系、确定误差与精度。<strong>校准</strong>:对<strong>使用/存储一段时间后</strong>的传感器再次测试和校正,方法与要求<strong>同标定</strong>。'},
+   {t:'tip',l:'类比',x:'把"100N 压力 → 对应 10V 输出"建立起来=标定;用一段时间后再核对/调整使其仍满足该对应关系=校准。'},
+   {t:'p',x:'<strong>标定基本方法</strong>:用标准仪器产生已知非电量(标准力/压力/位移)作输入 → 与传感器输出比较 → 得到一系列标准数据/曲线。'},
+   {t:'p',x:'<strong>静态标定</strong>:在输入不随时间变化的静态标准条件下,确定线性度/灵敏度/迟滞/重复性等静态指标。<strong>动态标定</strong>:实验得到一阶时间常数、二阶固有频率/阻尼比等,常用激励源:<strong>正弦信号和阶跃信号</strong>。'},
+   {t:'must',l:'必背·老师点名要求背诵',x:'<strong>静态标准条件:① 没有加速度、振动、冲击;② 室温 20±5℃;③ 相对湿度 < 85%;④ 一个标准大气压 (101.325±7) kPa。</strong>'},
+   {t:'p',x:'<strong>静态标定步骤</strong>:① 备齐静态标准条件 → ② 选精度相适应的标准仪器 → ③ 定量程并将全量程<strong>等间距</strong>分若干测量点 → ④ 由小到大/由大到小逐点输入并记录输出 → ⑤ 正反行程多次测量得多组数据 → ⑥ 用最小二乘法处理得校正曲线、确定静态指标。'},
+   {t:'tip',l:'拓展(笔记)',x:'层次化精度体系:国家计量院=<strong>一级</strong> → 标准传感器=<strong>二级</strong> → 出厂传感器=<strong>三级</strong>,兼顾准确性与成本。'},
+ ]},
+]},
+
+{ch:3,key:false,title:"第三章 电阻式传感器",meta:"CH-03 · 应变片+电桥 · 选择填空简答",sections:[
+ {h:"组成与优点",body:[
+   {t:'p',x:'<strong>组成链路</strong>:被测量(压力、加速度)→ 敏感元件(弹性梁、薄膜,发生形变)→ 转换元件(<strong>应变片</strong>,把机械变形/应变转成电阻变化)→ 测量电路(<strong>电桥电路</strong>)→ 输出信号。'},
+   {t:'p',x:'<strong>优点</strong>:① 灵敏度/精度高(常温可达 0.01%);② 测量范围广(10⁻⁴~2×10⁵ 量级微应变);③ 频响好(静态到数十万赫动态应变);④ 尺寸小、重量轻(栅长可短到 0.178mm);⑤ 可在高/低温、高速旋转、强磁场等复杂环境测量。'},
+ ]},
+ {h:"两大基本原理:应变效应 vs 压阻效应(★)",body:[
+   {t:'must',l:'必区分',x:'<strong>应变效应(金属/导体)</strong>:外力使其发生机械变形(伸长/缩短)时,<strong>电阻值</strong>随之变化。<strong>压阻效应(半导体)</strong>:外力作用下<strong>电阻率</strong>发生(较大)变化(内部产生更多自由电子)。'},
+   {t:'p',x:'<strong>应变 ε</strong>:描述物体形变程度的物理量(单位长度/面积内的形变量),<strong>是比值、无量纲</strong>。金属材料通常<strong>同质(Homogeneous)、等向(Isotropic)</strong>。'},
+   {t:'p',x:'<strong>金属应变片组成</strong>:① 基底(固定敏感栅,绝缘、薄、挠性好);② 敏感栅(金属丝绕成栅状,感受应变);③ 覆盖层(防潮/防蚀/防损);④ 引线(连敏感栅与测量电路)。'},
+   {t:'tip',l:'半导体优点',x:'压阻式:分辨率/灵敏度高、体积小、动态响应好、易微型化集成化;但半导体对温度敏感,一般需温度补偿电路。'},
+ ]},
+ {h:"灵敏度推导与系数 K(★)",body:[
+   {t:'p',x:'电阻 R = ρL/S。微分得 <span class="inl">dR/R = dL/L − dS/S + dρ/ρ</span>。代入轴向应变 ε=dL/L、径向 dr/r=−με、S=πr²(dS/S=2dr/r=−2με):'},
+   {t:'formula',x:'dR/R = (1 + 2μ)ε + dρ/ρ &nbsp;&nbsp;&nbsp;(μ=泊松比)'},
+   {t:'p',x:'<strong>金属</strong>:dρ/ρ = C·(dV/V) = C(1−2μ)ε,故'},
+   {t:'formula',x:'金属:K<span class="v">m</span> = (1 + 2μ) + C(1 − 2μ)'},
+   {t:'p',x:'<strong>半导体</strong>:dρ/ρ = πσ = πEε(π=压阻系数,σ=Eε 胡克定律,E=弹性模量),故'},
+   {t:'formula',x:'半导体:K<span class="v">s</span> = (1 + 2μ) + πE'},
+   {t:'p',x:'<strong>灵敏度系数</strong>(单位应变引起的电阻相对变化,是"变化率/变化率"):'},
+   {t:'formula',x:'K<span class="v">m/s</span> = (dR/R) / ε'},
+   {t:'pit',l:'易错·输入输出别搞反',x:'灵敏度的<strong>输入是应变 ε(dL/L,形变变化率)</strong>,<strong>输出是电阻相对变化 dR/R</strong>。不是"电阻/应变"也不是用绝对量。'},
+   {t:'p',x:'数值感:一般金属 μ≈0.3 → (1+2μ)≈1.6(几何项主导);康铜 C≈1 → C(1−2μ)≈0.4,故 K<sub>m</sub>≈2.0。半导体 πE 项很大 → K<sub>s</sub> 远大于金属。'},
+   {t:'must',l:'必记·标定灵敏度系数 K 的条件',x:'① 弹性元件(试件)为<strong>泊松系数 0.285 的钢材</strong>;② 试件<strong>单向受力</strong>;③ 应变片<strong>轴向与主应力方向一致</strong>。实测 <strong>K < K<sub>m/s</sub></strong>,原因是<strong>传递失真(胶层/基底损耗)+ 横向效应</strong>。'},
+ ]},
+ {h:"横向效应 与 温度误差(★)",body:[
+   {t:'p',x:'<strong>横向效应</strong>:敏感栅圆弧/横栅部分除沿轴向应变外,还在垂直轴向方向产生压缩应变,使横栅截面积增大、电阻减小,<strong>圆弧部分产生负的电阻变化</strong>,从而<strong>降低应变片灵敏度</strong>。要求应变片<strong>纵向与被测形变方向一致</strong>,并采取措施减小横向效应。'},
+   {t:'p',x:'<strong>温度误差的两个原因</strong>:'},
+   {t:'list',items:[
+     '① <strong>电阻丝自身电阻温度系数 α<sub>t</sub></strong>:ΔR<sub>tα</sub> = α<sub>t</sub>R₀Δt(α<sub>t</sub>=温度每升 1 度电阻增大的百分数)。',
+     '② <strong>试件材料与应变片材料线膨胀系数不同(β<sub>弹</sub>−β<sub>应</sub>)</strong>:受热膨胀差使电阻丝产生附加拉长/压缩,ΔR<sub>tβ</sub> = R₀K(β<sub>弹</sub>−β<sub>应</sub>)Δt(β=线膨胀系数,温度每升 1℃ 单位长度伸长量)。',
+   ]},
+   {t:'tip',l:'老师强调',x:'基底受热膨胀带动电阻丝<strong>额外形变</strong>——这不是温度直接作用,而是<strong>两者膨胀差</strong>引起,会放大温度对读数的影响,使读数偏大。温度误差是电路设计的重中之重。'},
+ ]},
+ {h:"测量电路 — 直流电桥(★)",body:[
+   {t:'p',x:'用<strong>直流电桥</strong>把电阻变化量转换成电压变化。平衡条件:<span class="inl">R₁R₄ = R₂R₃</span>,即 <span class="inl">R₁/R₂ = R₃/R₄</span>(此时输出为 0)。<strong>等臂电桥</strong>:R₁=R₂=R₃=R₄=R。'},
+   {t:'p',x:'<strong>电桥灵敏度 K<sub>u</sub></strong>:测量臂单位相对变化量(ΔR/R)导致的输出电压变化。'},
+   {t:'table',head:['接法','输出 U₀','电桥灵敏度 K<sub>u</sub>'],rows:[
+     ['单臂电桥(1 片)','U₀ ≈ (U/4)(ΔR/R) = (U/4)Kε','U/4'],
+     ['双臂半桥(2 片)','U₀ ≈ (U/2)(ΔR/R) = (U/2)Kε','U/2'],
+     ['全桥(4 片)','U₀ = U(ΔR/R) = U·Kε','U'],
+   ]},
+   {t:'must',l:'必记·全桥优点',x:'<strong>全桥可:① 提高灵敏度(K<sub>u</sub>=U,是单臂 4 倍);② 消除电桥的非线性;③ 实现温度补偿。</strong>'},
+   {t:'pit',l:'易错',x:'半桥<strong>无法</strong>完全消除非线性——因为电桥输出本质是<strong>电阻比的分式函数</strong>,不是电阻变化量的一次函数,分母里的电阻变化和高阶项仍在;只有差动全桥才能消去非线性。'},
+ ]},
+ {h:"其他电阻式传感器(对照表)",body:[
+   {t:'table',head:['类别','材料','原理','输出特性'],rows:[
+     ['应变式','金属或半导体','应变—电阻效应','阻值随形变变化'],
+     ['压阻式','石英等晶体','压阻效应','阻值随所加压力变化'],
+     ['电位器式','金属或半导体','变阻器','阻值随输出端位置变化'],
+     ['光电阻式','半导体','光电效应','阻值随光的强弱/性质变化'],
+     ['热电阻式','金属或半导体','电阻—温度特性','阻值随温度变化'],
+   ]},
+   {t:'tip',l:'拓展(笔记,可能不考)',x:'六轴力传感器 = 3 平移(x,y,z 定位)+ 3 旋转(yaw/pitch/roll 定姿),源自 D-H 运动学;刚体在三维空间完整位姿需 6 个参数。'},
+ ]},
+]},
+];
+
+/* =========================================================
+   题库   type: choice / blank / short
+   choice: answer = 正确选项索引(0起)
+   ========================================================= */
+const Q=[
+/* ---------- 第1章 ---------- */
+{ch:1,type:'choice',q:'根据国标 GB/T 7665-2005,传感器通常由哪两部分组成?',
+ o:['敏感元件和测量电路','敏感元件和转换元件','转换元件和辅助电源','敏感元件和接口电路'],a:1,
+ e:'国标定义:能感受被测量并按一定规律转换成可用输出信号的器件或装置,<strong>通常由敏感元件和转换元件组成</strong>。'},
+{ch:1,type:'choice',q:'下列对 sensor / transducer / actuator 的描述,正确的是?',
+ o:['actuator 把物理信号转成电信号','sensor 把电能转成机械能','sensor 把物理信号转成电信号','transducer 只能把电信号转成电信号'],a:2,
+ e:'sensor 物理信号→电信号;transducer 一种物理量→另一种物理量(换能);actuator 电能→物理能/机械能(执行)。'},
+{ch:1,type:'choice',q:'压电式传感器、光电式传感器属于物理传感器中的哪一类?',
+ o:['结构型','物性型','化学型','能量控制型'],a:1,
+ e:'物性型靠敏感元件<strong>本身物理特性</strong>变化(压电、光电);结构型靠<strong>结构参数(几何尺寸/形状)</strong>变化(如变极距型电容)。'},
+{ch:1,type:'choice',q:'电阻应变片按"能量关系"分类,属于?',
+ o:['能量转换型(自源型)','能量控制型(外源型)','数字式','生物传感器'],a:1,
+ e:'应变片需外部供能、由被测量控制供能变化,属<strong>能量控制型(外源型)</strong>;热电偶、压电式加速度计才是能量转换型(自源型)。'},
+{ch:1,type:'choice',q:'机器人"电机转速""内部传动机构位移"的检测,属于?',
+ o:['外部传感器','内部传感器','化学传感器','非接触式'],a:1,
+ e:'检测对象是机器人<strong>自身内部状态</strong>,用以调整控制自身行动,属内部传感器,且属控制器的一部分。'},
+{ch:1,type:'choice',q:'机器人感知系统中,"消除单一传感器不确定性、整合多传感器信息"属于哪一环节?',
+ o:['信号调理','数据校验','信息融合','接口电路'],a:2,
+ e:'信息融合整合视觉+触觉+距离等,消除单一传感器不确定性,并会调用传感器数据库历史数据/模型辅助判断。'},
+{ch:1,type:'choice',q:'视觉感知由低到高的正确分层顺序是?',
+ o:['边缘→像素→特征→语义→目标','像素→边缘→特征→目标→语义','像素→特征→边缘→目标→语义','目标→特征→边缘→像素→语义'],a:1,
+ e:'像素(原始亮度)→边缘(梯度)→特征(角点纹理)→目标(独立物体)→语义(场景理解)。'},
+{ch:1,type:'choice',q:'传感器发展的三个阶段顺序是?',
+ o:['固体型→结构型→智能型','结构型→固体型→智能型','智能型→固体型→结构型','结构型→智能型→固体型'],a:1,
+ e:'结构型(1950-1969,结构参量)→固体型(1970-1999,热电/霍尔/光敏材料效应)→智能型(2000-至今,处理器+数据处理)。'},
+{ch:1,type:'choice',q:'SLAM 的中文含义是?',
+ o:['多传感器信息融合','同步定位与建图','感知系统标准化','信号滤波与降噪'],a:1,
+ e:'SLAM = Simultaneous Localization and Mapping,同步定位与建图,是机器人传感的核心应用。'},
+{ch:1,type:'blank',q:'传感器组成中,直接感受被测量并输出与被测量成确定关系物理量的是 ______ ,把非电量转换成电量的是 ______ 。',
+ a:'敏感元件;转换元件',
+ e:'敏感元件反映物理规律(直接感受);转换元件(又称变换器)把非电量→电量。两者有时合二为一。'},
+{ch:1,type:'blank',q:'按测量的基本效应,传感器分为 ______ 传感器、______ 传感器和 ______ 传感器。',
+ a:'物理;化学;生物',
+ e:'物理(靠物理特性/结构参数)、化学(靠化学效应,如气体传感器)、生物(靠生物活性物质识别,如葡萄糖氧化酶)。'},
+{ch:1,type:'blank',q:'感知困难的四个原因是:传感器噪声、______ 、环境复杂、______ ,因此需要"融合与滤波"。',
+ a:'数据不完整;不确定性',
+ e:'四因:传感器噪声、数据不完整、环境复杂、不确定性。'},
+{ch:1,type:'short',q:'简述内部传感器与外部传感器的区别,并各举两例。',
+ a:'内部传感器:感知机器人自身内部状态,用以调整控制自身行动,安装在机器人内部、属于控制器的一部分。例:位置/速度/加速度/平衡传感器、电机转速、内部传动机构位移。\n外部传感器:感知周围环境与目标的状态特征,使机器人有自校正/自适应能力,检测对外界的感应、不属于控制器固有部件。例:视觉(图像)、触觉、超声测距、嗅觉、接近觉。'},
+{ch:1,type:'short',q:'简述机器人感知系统的三段式组成。',
+ a:'① 感知内容:内部状态(角速度/加速度、姿态、方位)+外部环境(力/触觉、视觉、听觉、嗅觉、接近/距离);② 硬件:传感器→信号调理(放大/滤波/降噪)→接口电路(转数字信号并传输);③ 软件:数据校验(剔除异常)→信息融合(整合多传感器、消除不确定性、调用数据库)→决策输出(给出感知结论)。'},
+
+/* ---------- 第2章 ---------- */
+{ch:2,type:'choice',q:'下列哪一项属于影响测量的"外部因素"?',
+ o:['传感器材料','工作原理','测量员操作与环境噪声','传感器组装工艺'],a:2,
+ e:'外部因素=环境、测量方法、测量员、其他干扰噪声;内部因素=出厂后工作原理、材料、组装。'},
+{ch:2,type:'choice',q:'传感器的静态特性是指?',
+ o:['输出随时间快速变化时的响应','被测量不变或变化很缓慢(稳态)时的输入输出关系','激励信号作用下的频率响应','阶跃输入下的瞬态过程'],a:1,
+ e:'静态特性:被测量不随时间变化或变化很缓慢、稳态信号输入时的输入输出关系。'},
+{ch:2,type:'choice',q:'线性度公式 γ_L=±ΔL_max/Y_FS 中,Y_FS(满量程输出)等于?',
+ o:['输出最大值','输出最大值−最小值','输出平均值','输出最小值'],a:1,
+ e:'满量程输出 = 最大值 − 最小值。线性度是比率、无量纲。'},
+{ch:2,type:'choice',q:'关于线性化拟合方法,"精度高且普遍推荐"的是?',
+ o:['理论直线法','端点法','最佳直线法','最小二乘法'],a:3,
+ e:'最小二乘法残差平方和最小、有解析公式可直接代入,精度高、普遍推荐;端点法/理论法误差大。'},
+{ch:2,type:'choice',q:'下列关于灵敏度的说法,正确的是?',
+ o:['灵敏度越大越好','灵敏度是输出对时间的微分','灵敏度过大时微小噪声也会被放大','灵敏度是无量纲比率'],a:2,
+ e:'灵敏度 S=dy/dx,不是越大越好——过大时噪声/干扰也被放大。这是老师点名的判断陷阱。'},
+{ch:2,type:'choice',q:'某压力传感器测 0~100N,转 0~5V 后经 10 位 A/D。其分辨率为?',
+ o:['0.01N','1/2¹⁰','5V','100N'],a:1,
+ e:'分辨率是相对值=1/2¹⁰(占量程百分比);若问分辨力(绝对值)才是 100N/2¹⁰ 这类带单位的数。'},
+{ch:2,type:'choice',q:'迟滞产生的宏观原因主要是?',
+ o:['温度漂移','惯性','噪声','非线性'],a:1,
+ e:'迟滞源于惯性:启动时倾向保持原状态,故正反行程不重合,上行曲线常向下凸。迟滞是比率、无单位。'},
+{ch:2,type:'choice',q:'"输出值的分散性、随机误差大小的标志"指的是?',
+ o:['准确度','正确度','精密度','线性度'],a:2,
+ e:'精密度=分散性=随机误差标志;准确度/正确度=偏离真值=系统误差标志;精确度=两者综合。'},
+{ch:2,type:'choice',q:'传感器在输入不变时,输出随时间或温度变化的现象称为?',
+ o:['迟滞','漂移','阈值','超调'],a:1,
+ e:'漂移,分零点漂移与灵敏度漂移;原因是结构参数老化与环境(温度/湿度/压力)变化。'},
+{ch:2,type:'choice',q:'动态特性的时域分析法和频域分析法分别采用?',
+ o:['频率响应法 / 阶跃响应法','瞬态(阶跃)响应法 / 频率响应法','最小二乘法 / 拉氏变换','正弦法 / 冲激法'],a:1,
+ e:'时域用瞬态(阶跃)响应法,激励为阶跃/指数/斜坡/冲激;频域用频率响应法,激励为正弦。'},
+{ch:2,type:'choice',q:'一阶传感器的时间常数 τ 定义为输出上升到稳态值的?',
+ o:['50%','63.2%','90%','100%'],a:1,
+ e:'τ=上升到稳态值 63.2%(=1−1/e)所需时间;延迟时间 td 对应 50%;上升时间 tr(无振荡)对应 10%→90%。'},
+{ch:2,type:'choice',q:'二阶传感器工程上首选的"最佳阻尼比"是?',
+ o:['0','0.5','0.707','1'],a:2,
+ e:'ζ=0.707 时响应快+超调小,是最佳折中;ζ=1 临界阻尼最快单调到位;ζ<1 欠阻尼有超调;ζ>1 过阻尼迟到。'},
+{ch:2,type:'choice',q:'为减小动态误差、扩大频响范围,二阶传感器固有频率 ωn 通常应满足?',
+ o:['ωn ≤ ω','ωn = ω','ωn ≥ (3~5)ω,实测常取 ≥10ω','ωn 越小越好'],a:2,
+ e:'ωn 至少为被测信号频率 ω 的 3~5 倍,实测常取 ≥10 倍,以保证 A(ω)≈1、无失真再现波形。'},
+{ch:2,type:'choice',q:'传感器相频特性 Φ(ω) 对传感器通常为负,表示?',
+ o:['输出超前输入','输出滞后输入','幅值衰减','无失真'],a:1,
+ e:'Φ 通常为负 → 输出相位滞后于输入。幅频特性 A(ω) 又称动态灵敏度/增益。'},
+{ch:2,type:'choice',q:'下列哪一组是动态标定常用的标准激励信号源?',
+ o:['标准力和位移','正弦信号和阶跃信号','斜坡和冲激','直流电压'],a:1,
+ e:'动态标定常用正弦信号和阶跃信号,用于得到时间常数、固有频率、阻尼比等动态指标。'},
+{ch:2,type:'blank',q:'静态误差通常由 ______ 误差、______ 误差(系统误差)与随机误差综合得到。',
+ a:'线性度;迟滞',
+ e:'精确度(静态误差)由线性度、迟滞构成的系统误差与随机误差综合;计算时常把线性度/迟滞/重复性误差平方和开根。'},
+{ch:2,type:'blank',q:'分辨力是 ______ 值(带物理单位),分辨率是 ______ 值(占满量程百分数)。',
+ a:'绝对;相对',
+ e:'分辨力如 0.01mm/0.1mg/10μs;分辨率如 0.1%/0.02%。这是老师强调的"很大区别"。'},
+{ch:2,type:'blank',q:'传递函数定义为:初始条件为零时,输出量的 ______ 变换与输入量的 ______ 变换之比。',
+ a:'拉普拉斯(拉氏);拉普拉斯(拉氏)',
+ e:'H(s)=Y(s)/X(s),初始条件为零时输出(响应)拉氏变换 ÷ 输入(激励)拉氏变换。'},
+{ch:2,type:'blank',q:'二阶传感器的两个关键动态参数是 ______ 和 ______ 。',
+ a:'固有角频率 ωn;阻尼比 ζ',
+ e:'ωn=无阻尼自由振荡频率(由结构决定);ζ=阻尼比(决定是否振荡及衰减快慢)。'},
+{ch:2,type:'blank',q:'静态标准条件:没有加速度/振动/冲击,室温 ______ ℃,相对湿度 < ______ %,一个标准大气压 (101.325±7) kPa。',
+ a:'20±5;85',
+ e:'老师明确要求背诵的静态标准条件。注意:录音口述"20±50℃"为口误,PPT/笔记均为 20±5℃。'},
+{ch:2,type:'blank',q:'阻尼比 ζ=0 为 ______ 阻尼(等幅振荡),ζ=1 为 ______ 阻尼(最快单调到位),ζ>1 为 ______ 阻尼。',
+ a:'无;临界;过',
+ e:'ζ=0 无阻尼等幅振荡;0<ζ<1 欠阻尼有超调;ζ=1 临界阻尼;ζ>1 过阻尼爬升慢。'},
+{ch:2,type:'short',q:'简述精密度、正确度(准确度)、精确度三者的区别。',
+ a:'精密度:衡量传感器输出值的分散性,是随机误差大小的标志(测量值彼此集中程度)。\n正确度/准确度:衡量输出值与真值的偏离程度,是系统误差大小的标志(平均值是否靠近真值)。\n精确度:综合反映与真值的逼近程度,由系统误差与随机误差综合得到——既准又密。'},
+{ch:2,type:'short',q:'简述线性化的五种拟合直线方法及各自特点。',
+ a:'① 理论直线法:理论推导、与测试值无关,简单但非线性误差大;② 端点(连线)法:两端点相连,简单但误差大;③ 最佳直线法:与曲线正负偏差相等且最小,精度高但求解复杂;④ 最小二乘法:残差平方和最小,精度高、有解析公式可直接代入,普遍推荐;⑤ 硬件线性化法:差动或线性/非线性元件串并联,实时性好但实现复杂、成本高。'},
+{ch:2,type:'short',q:'简述标定与校准的区别,以及静态标定与动态标定的内容。',
+ a:'标定:对新生产的传感器用标准仪器做技术检定和标度,建立输入输出关系、确定误差与精度。校准:对使用/存储一段时间后的传感器再次测试和校正,方法与要求同标定。\n静态标定:在静态标准条件下确定线性度、灵敏度、迟滞、重复性等静态指标。动态标定:实验得到一阶时间常数、二阶固有频率/阻尼比等,常用激励源为正弦信号和阶跃信号。'},
+{ch:2,type:'short',q:'写出一阶传感器的三个时域动态指标及含义。',
+ a:'① 时间常数 τ:输出上升到稳态值 63.2% 所需时间,τ 越小响应越快(惯性越小);② 延迟时间 td:输出达到稳态值 50% 所需时间;③ 上升时间 tr:无振荡时为 10%→90% 所需时间,有振荡时为从零到第一次到达稳态值的时间。'},
+{ch:2,type:'short',q:'写出二阶传感器阶跃响应的主要时域指标。',
+ a:'峰值时间 tp(到第一个峰值的时间)、超调量 σ=[y(tp)−y(∞)]/y(∞)(输出最大值超过稳态值的比值)、稳态误差(t→∞ 时实际值与期望值之差)、响应/调节时间 ts(衰减到与稳态值之差不超过 ±5% 或 ±2% 所需时间)。'},
+
+/* ---------- 第3章 ---------- */
+{ch:3,type:'choice',q:'电阻式(应变式)传感器中,把"机械变形(应变)"转换成"电阻变化"的转换元件是?',
+ o:['弹性梁','薄膜','应变片','电桥'],a:2,
+ e:'链路:被测量→敏感元件(弹性梁/薄膜)→转换元件(应变片)→测量电路(电桥)。应变片是转换元件。'},
+{ch:3,type:'choice',q:'半导体材料受外力时电阻率发生较大变化的现象称为?',
+ o:['应变效应','压阻效应','光电效应','霍尔效应'],a:1,
+ e:'压阻效应针对半导体(电阻率变化);应变效应针对金属(电阻值随机械变形变化)。'},
+{ch:3,type:'choice',q:'金属应变片灵敏度系数 Km 的正确表达式是?',
+ o:['Km=(1+2μ)+πE','Km=(1+2μ)+C(1−2μ)','Km=(1−2μ)+πE','Km=dR/R'],a:1,
+ e:'金属:dρ/ρ=C(1−2μ)ε,故 Km=(1+2μ)+C(1−2μ);半导体才是 Ks=(1+2μ)+πE。'},
+{ch:3,type:'choice',q:'应变片灵敏度系数 K 定义中,输入量和输出量分别是?',
+ o:['输入电阻、输出应变','输入应变 ε、输出电阻相对变化 dR/R','输入力、输出电压','输入 dR、输出 ε'],a:1,
+ e:'K=(dR/R)/ε,输入是应变 ε(dL/L),输出是电阻相对变化 dR/R,是"变化率/变化率"。'},
+{ch:3,type:'choice',q:'实测应变片灵敏度 K 小于 Km/s 的主要原因是?',
+ o:['温度漂移和噪声','传递失真和横向效应','电桥不平衡','电源波动'],a:1,
+ e:'K<Km/s 源于传递失真(胶层/基底损耗)与横向效应(圆弧/横栅产生负电阻变化)。'},
+{ch:3,type:'choice',q:'应变片温度误差的两个来源是?',
+ o:['电阻丝温度系数 + 线膨胀系数不同','横向效应 + 传递失真','非线性 + 迟滞','噪声 + 漂移'],a:0,
+ e:'① 电阻丝自身电阻温度系数 αt;② 试件与应变片线膨胀系数不同(β弹−β应)引起附加形变。'},
+{ch:3,type:'choice',q:'直流电桥的平衡条件(输出为零)是?',
+ o:['R₁=R₂','R₁/R₂ = R₃/R₄','R₁+R₄ = R₂+R₃','所有电阻为零'],a:1,
+ e:'平衡条件 R₁R₄=R₂R₃,即 R₁/R₂=R₃/R₄,此时输出 U₀=0。'},
+{ch:3,type:'choice',q:'等臂电桥中,单臂、双臂(半桥)、全桥的电桥灵敏度 Ku 分别为?',
+ o:['U/2、U/4、U','U/4、U/2、U','U、U/2、U/4','U/4、U、U/2'],a:1,
+ e:'单臂 Ku=U/4,双臂半桥 Ku=U/2,全桥 Ku=U。片数越多、差动布置,灵敏度越高。'},
+{ch:3,type:'choice',q:'全桥(四臂接应变片)电路的优点不包括?',
+ o:['提高灵敏度','消除非线性','实现温度补偿','降低电源电压'],a:3,
+ e:'全桥三大优点:提高灵敏度(Ku=U)、消除非线性、实现温度补偿;与降低电源电压无关。'},
+{ch:3,type:'choice',q:'下列关于半桥的说法正确的是?',
+ o:['半桥能完全消除非线性','半桥灵敏度与单臂相同','半桥无法完全消除非线性,只有全桥(差动)才能','半桥不能做温度补偿'],a:2,
+ e:'电桥输出本质是电阻比的分式函数,半桥分母仍含电阻变化和高阶项,故不能完全消除非线性;差动全桥才能。'},
+{ch:3,type:'blank',q:'电阻式传感器两大基本原理:金属的 ______ 效应(电阻值变化)和半导体的 ______ 效应(电阻率变化)。',
+ a:'应变;压阻',
+ e:'应变效应=金属受力机械变形使电阻值变化;压阻效应=半导体受力使电阻率变化。'},
+{ch:3,type:'blank',q:'金属应变片由四部分组成:______ 、敏感栅、______ 、引线。',
+ a:'基底;覆盖层',
+ e:'基底(固定敏感栅、绝缘薄挠)、敏感栅(金属丝绕成栅状感受应变)、覆盖层(防潮防蚀防损)、引线(连测量电路)。'},
+{ch:3,type:'blank',q:'电阻 R=ρL/S,微分整理后 dR/R = ______ ·ε + dρ/ρ(μ 为泊松比)。',
+ a:'(1+2μ)',
+ e:'几何尺寸项为 (1+2μ)ε;再加电阻率变化项 dρ/ρ。金属一般 μ≈0.3,(1+2μ)≈1.6。'},
+{ch:3,type:'blank',q:'标定灵敏度系数 K 的三个规定条件:试件为泊松系数 ______ 的钢材、试件 ______ 受力、应变片轴向与 ______ 方向一致。',
+ a:'0.285;单向;主应力',
+ e:'这三条是标定 K 的标准条件;实测 K<Km/s,因传递失真与横向效应。'},
+{ch:3,type:'blank',q:'横向效应会使应变片灵敏度 ______ (升高/降低),因此应变片纵向应与被测形变方向 ______ 。',
+ a:'降低;一致',
+ e:'横栅/圆弧部分产生负电阻变化、压缩应变,降低灵敏度;须纵向与形变方向一致并采取措施减小横向效应。'},
+{ch:3,type:'short',q:'简述应变效应与压阻效应的区别。',
+ a:'应变效应:针对金属(导体),外力使其发生机械变形(伸长/缩短)时,电阻值随机械变形而变化。\n压阻效应:针对半导体,外力作用下电阻率发生较大变化(内部产生更多自由电子)。\n二者本质不同:金属主要是几何尺寸变化导致电阻值变化(并叠加小的电阻率变化),半导体主要是电阻率变化,故半导体灵敏度系数远大于金属。'},
+{ch:3,type:'short',q:'简述应变片温度误差的两个产生原因。',
+ a:'① 电阻丝自身电阻温度系数 αt:温度变化使电阻丝电阻按 ΔR_tα=αt·R0·Δt 变化;② 试件材料与应变片材料线膨胀系数不同(β弹−β应):受热膨胀差使电阻丝产生附加拉长/压缩,ΔR_tβ=R0·K·(β弹−β应)·Δt。两者叠加形成温度引起的总附加应变/电阻变化。'},
+{ch:3,type:'short',q:'简述全桥电路相比单臂电桥的三大优点。',
+ a:'① 提高灵敏度:全桥 Ku=U,是单臂(U/4)的 4 倍;② 消除电桥的非线性:四臂差动布置使分式输出中的非线性项相消;③ 实现温度补偿:对臂温度引起的电阻变化相互抵消。'},
+{ch:3,type:'short',q:'写出单臂、双臂(半桥)、全桥电桥的输出电压表达式(等臂、ΔR≪R)。',
+ a:'单臂:U₀ ≈ (U/4)(ΔR/R) = (U/4)Kε,Ku=U/4;\n双臂半桥:U₀ ≈ (U/2)(ΔR/R) = (U/2)Kε,Ku=U/2;\n全桥:U₀ = U(ΔR/R) = U·Kε,Ku=U。'},
+];
+
+/* =========================================================
+   必背速记卡
+   ========================================================= */
+const MEM=[
+{t:'第2章·必背',q:'静态标准条件(老师要求背诵)?',a:'① 没有加速度、振动、冲击;② 室温 20±5℃;③ 相对湿度 < 85%;④ 一个标准大气压 (101.325±7) kPa。'},
+{t:'第2章·必区分',q:'精密度 / 正确度 / 精确度 各对应什么?',a:'精密度=分散性=随机误差标志;正确度(准确度)=偏离真值=系统误差标志;精确度=两者综合(又准又密)。'},
+{t:'第2章·必区分',q:'分辨力 vs 分辨率?',a:'分辨力=绝对值带单位(0.01mm、0.1mg、10μs);分辨率=相对值占满量程百分数(0.1%、0.02%)。'},
+{t:'第2章·判断陷阱',q:'"灵敏度越大越好"对吗?',a:'错。灵敏度过大时微小噪声/干扰也会被放大影响输出,需权衡。S=dy/dx。'},
+{t:'第2章·必记',q:'线性化最推荐哪种方法?为什么?',a:'最小二乘法。残差平方和最小、精度高,且有解析公式可直接代入计算,普遍推荐。'},
+{t:'第2章·必记',q:'迟滞的成因和单位?',a:'成因=惯性(倾向保持原状态,正反行程不重合);迟滞是比率、无单位。'},
+{t:'第2章·必记',q:'一阶时间常数 τ 对应输出的百分比?td、tr 呢?',a:'τ→63.2%;延迟时间 td→50%;上升时间 tr(无振荡)→10%到90%(有振荡→0到首次到达稳态)。'},
+{t:'第2章·必记',q:'二阶最佳阻尼比?四种阻尼状态?',a:'最佳 ζ=0.707。ζ=0 无阻尼(等幅振荡)、0<ζ<1 欠阻尼(有超调)、ζ=1 临界(最快单调)、ζ>1 过阻尼(迟到)。'},
+{t:'第2章·必记',q:'固有频率 ωn 与被测频率 ω 的关系?',a:'ωn ≥ (3~5)ω,实测常取 ωn ≥ 10ω,以保证 A(ω)≈1、无失真再现波形。'},
+{t:'第2章·必记',q:'时域 vs 频域 用什么分析法?激励信号?',a:'时域→瞬态(阶跃)响应法(阶跃/指数/斜坡/冲激);频域→频率响应法(正弦)。'},
+{t:'第3章·必区分',q:'应变效应 vs 压阻效应?',a:'应变效应=金属受力机械变形→电阻值变化;压阻效应=半导体受力→电阻率变化。'},
+{t:'第3章·必记',q:'金属/半导体灵敏度系数公式?',a:'金属 Km=(1+2μ)+C(1−2μ);半导体 Ks=(1+2μ)+πE。灵敏度系数 K=(dR/R)/ε。'},
+{t:'第3章·必记',q:'dR/R 的几何尺寸项?μ≈0.3 时约等于?',a:'dR/R=(1+2μ)ε+dρ/ρ;μ≈0.3 时 (1+2μ)≈1.6;康铜 C≈1,Km≈2.0。'},
+{t:'第3章·必记',q:'标定 K 的三条件 + K<Km/s 的原因?',a:'条件:泊松系数 0.285 钢材、单向受力、轴向与主应力一致。K<Km/s 因传递失真+横向效应。'},
+{t:'第3章·必记',q:'应变片温度误差两个原因?',a:'① 电阻丝电阻温度系数 αt;② 试件与应变片线膨胀系数不同(β弹−β应)引起附加形变。'},
+{t:'第3章·必记',q:'电桥平衡条件?',a:'R₁R₄=R₂R₃,即 R₁/R₂=R₃/R₄,此时输出为 0。'},
+{t:'第3章·必记',q:'单臂/双臂/全桥灵敏度 Ku?',a:'单臂 U/4、双臂半桥 U/2、全桥 U。输出 U₀ 分别 ≈(U/4)Kε、(U/2)Kε、U·Kε。'},
+{t:'第3章·必记',q:'全桥三大优点?半桥能否消非线性?',a:'全桥:提高灵敏度、消除非线性、温度补偿。半桥不能完全消非线性(输出本质是电阻比的分式函数),只有差动全桥才能。'},
+{t:'第1章·必记',q:'传感器国标定义 + 组成?',a:'GB/T 7665-2005:能感受被测量并按一定规律转换成可用输出信号的器件或装置,通常由敏感元件和转换元件组成。'},
+{t:'第1章·必记',q:'传感器五种分类依据?',a:'①按被测量 ②按工作原理 ③按基本效应(物理/化学/生物)④按能量关系(控制型/转换型)⑤按输出量(模拟/数字)。'},
+{t:'第1章·必记',q:'感知系统三段式组成?',a:'感知内容 → 硬件(传感器→信号调理→接口电路)→ 软件(数据校验→信息融合→决策输出)。'},
+{t:'第1章·必记',q:'视觉感知五分层?',a:'像素→边缘→特征→目标→语义(原始亮度→梯度→角点纹理→独立物体→场景理解)。'},
+];
+
+/* =========================================================
+   渲染
+   ========================================================= */
+function el(tag,cls,html){const e=document.createElement(tag); if(cls)e.className=cls; if(html!=null)e.innerHTML=html; return e;}
+
+/* ---- guide ---- */
+function renderGuide(){
+  const root=document.getElementById('panel-guide');
+  GUIDE.forEach((ch,ci)=>{
+    const wrap=el('div','chapter'+(ci===1?' open':''));
+    const head=el('div','ch-head');
+    head.innerHTML=`<div class="ch-num ${ch.key?'k':''}">0${ch.ch}</div>
+      <div><div class="ch-title">${ch.title}</div><div class="ch-meta">${ch.meta}</div></div>
+      <div class="ch-tog"></div>`;
+    head.addEventListener('click',()=>wrap.classList.toggle('open'));
+    wrap.appendChild(head);
+    const body=el('div','ch-body');
+    ch.sections.forEach(sec=>{
+      const s=el('div','sec');
+      s.appendChild(el('h3',null,`<span class="dot"></span>${sec.h}`));
+      sec.body.forEach(it=>s.appendChild(renderItem(it)));
+      body.appendChild(s);
+    });
+    wrap.appendChild(body);
+    root.appendChild(wrap);
+  });
+}
+function renderItem(it){
+  if(it.t==='p') return el('p',null,it.x);
+  if(it.t==='formula') return el('div','formula',it.x);
+  if(it.t==='list'){const u=el('ul'); it.items.forEach(i=>u.appendChild(el('li',null,i))); return u;}
+  if(it.t==='def'){const u=el('ul'); it.pairs.forEach(p=>u.appendChild(el('li',null,`<strong>${p[0]}</strong>:${p[1]}`))); return u;}
+  if(['must','pit','tip','exam'].includes(it.t)){
+    const c=el('div','call '+it.t);
+    c.innerHTML=`<span class="lab">${it.l}</span>${it.x}`; return c;
+  }
+  if(it.t==='table'){
+    const t=el('table','t');
+    let h='<thead><tr>'+it.head.map(x=>`<th>${x}</th>`).join('')+'</tr></thead><tbody>';
+    h+=it.rows.map(r=>'<tr>'+r.map(c=>`<td>${c}</td>`).join('')+'</tr>').join('');
+    t.innerHTML=h+'</tbody>'; return t;
+  }
+  return el('p',null,'');
+}
+
+/* ---- bank ---- */
+const TYPE_LABEL={choice:'选择',blank:'填空',short:'简答'};
+let filt={ch:'all',ty:'all'};
+const choiceState={}; // idx -> correct?
+function renderBank(){
+  const list=document.getElementById('qlist'); list.innerHTML='';
+  let shown=0;
+  Q.forEach((q,i)=>{
+    if(filt.ch!=='all' && String(q.ch)!==filt.ch) return;
+    if(filt.ty!=='all' && q.type!==filt.ty) return;
+    shown++;
+    const card=el('div','q'); card.dataset.i=i;
+    const head=el('div','qh');
+    head.innerHTML=`<span class="qtag c${q.ch}">第${q.ch}章</span>
+      <span class="qtype">${TYPE_LABEL[q.type]}</span>
+      <span class="qid">#${String(i+1).padStart(3,'0')}</span>`;
+    card.appendChild(head);
+    card.appendChild(el('div','qtext',q.q.replace(/______/g,'<span class="blk">　　</span>')));
+
+    if(q.type==='choice'){
+      const opts=el('div','opts');
+      q.o.forEach((opt,oi)=>{
+        const o=el('div','opt');
+        o.innerHTML=`<span class="ol">${'ABCD'[oi]}</span><span>${opt}</span>`;
+        o.addEventListener('click',()=>{
+          if(o.parentElement.classList.contains('done'))return;
+          opts.classList.add('done');
+          [...opts.children].forEach(c=>c.classList.add('locked'));
+          opts.children[q.a].classList.add('correct');
+          if(oi!==q.a) o.classList.add('wrong');
+          choiceState[i]=(oi===q.a);
+          card.classList.add('opened');
+          updateStat();
+        });
+        opts.appendChild(o);
+      });
+      card.appendChild(opts);
+      const ans=el('div','ans');
+      ans.innerHTML=`<div class="al">解析</div><div class="akey">正确答案:${'ABCD'[q.a]}</div><div class="ex">${q.e}</div>`;
+      card.appendChild(ans);
+    }else{
+      const btn=el('button','reveal-btn','显示答案'); 
+      btn.addEventListener('click',()=>{card.classList.toggle('opened'); btn.textContent=card.classList.contains('opened')?'隐藏答案':'显示答案';});
+      card.appendChild(btn);
+      const ans=el('div','ans');
+      const akey=(q.a||'').replace(/\n/g,'<br>');
+      ans.innerHTML=`<div class="al">${q.type==='blank'?'答案':'参考答案'}</div><div class="akey">${akey}</div>${q.e?`<div class="ex">${q.e}</div>`:''}`;
+      card.appendChild(ans);
+    }
+    list.appendChild(card);
+  });
+  document.getElementById('qstat').dataset.shown=shown;
+  updateStat();
+}
+function updateStat(){
+  const total=Q.length;
+  let answered=0,correct=0;
+  Object.keys(choiceState).forEach(k=>{answered++; if(choiceState[k])correct++;});
+  const choiceTotal=Q.filter(q=>q.type==='choice').length;
+  document.getElementById('qstat').innerHTML=
+    `共 ${total} 题 · 选择已答 ${answered}/${choiceTotal} · 正确 <b>${correct}</b>`;
+}
+
+/* ---- mem ---- */
+function renderMem(){
+  const g=document.getElementById('mgrid');
+  MEM.forEach(m=>{
+    const c=el('div','mcard');
+    c.innerHTML=`<div class="mt">${m.t}</div><div class="hint">点击翻面</div><div class="mq">${m.q}</div><div class="ma">${m.a.replace(/\n/g,'<br>')}</div>`;
+    c.addEventListener('click',()=>{c.classList.toggle('flip'); c.querySelector('.hint').textContent=c.classList.contains('flip')?'已翻面':'点击翻面';});
+    g.appendChild(c);
+  });
+}
+
+/* ---- tabs + controls ---- */
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('show'));
+    document.getElementById('panel-'+t.dataset.tab).classList.add('show');
+    window.scrollTo({top:0});
+  });
+});
+document.querySelectorAll('.chip').forEach(c=>{
+  c.addEventListener('click',()=>{
+    const f=c.dataset.f;
+    document.querySelectorAll(`.chip[data-f="${f}"]`).forEach(x=>x.classList.remove('on'));
+    c.classList.add('on');
+    filt[f]=c.dataset.v;
+    renderBank();
+  });
+});
+document.getElementById('expandAll').addEventListener('click',()=>document.querySelectorAll('#qlist .q').forEach(q=>{q.classList.add('opened'); const b=q.querySelector('.reveal-btn'); if(b)b.textContent='隐藏答案';}));
+document.getElementById('collapseAll').addEventListener('click',()=>document.querySelectorAll('#qlist .q').forEach(q=>{q.classList.remove('opened'); const b=q.querySelector('.reveal-btn'); if(b)b.textContent='显示答案';}));
+document.getElementById('resetChoice').addEventListener('click',()=>{for(const k in choiceState)delete choiceState[k]; renderBank();});
+document.getElementById('flipAll').addEventListener('click',()=>document.querySelectorAll('.mcard').forEach(c=>{c.classList.add('flip'); c.querySelector('.hint').textContent='已翻面';}));
+document.getElementById('unflipAll').addEventListener('click',()=>document.querySelectorAll('.mcard').forEach(c=>{c.classList.remove('flip'); c.querySelector('.hint').textContent='点击翻面';}));
+
+renderGuide(); renderBank(); renderMem();
+</script>
+</body>
+</html>
