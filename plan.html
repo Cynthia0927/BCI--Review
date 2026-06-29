@@ -1,0 +1,502 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>满分作战 · 机器人传感技术一日总攻</title>
+<style>
+:root{
+  --bg:#FFFFFF; --bg2:#F2F6F2; --surface:#FFFFFF; --surface2:#F3F8F3;
+  --line:#E4EAE4; --line2:#CCD9CC;
+  --ink:#16261C; --dim:#4B5A50; --faint:#8A988E;
+  --found:#1E9E57;  --found-d:#D2EEDD;   /* 课内·打底  绿（主色） */
+  --build:#BE7A10;  --build-d:#F1E4C6;   /* 设计·冲刺  琥珀（点缀） */
+  --sprint:#0E8E84; --sprint-d:#D0ECE9;  /* 整合·总攻  青绿（点缀） */
+  --done:#2FA85F; --live:#10C26A;
+  --mono:ui-monospace,"SF Mono","JetBrains Mono","Cascadia Code",Consolas,monospace;
+  --sans:"PingFang SC","Microsoft YaHei","Noto Sans SC","Hiragino Sans GB",system-ui,-apple-system,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:
+    radial-gradient(900px 520px at 88% -10%, #1E9E5712, transparent 60%),
+    radial-gradient(720px 460px at -8% 2%, #BE7A100c, transparent 55%),
+    var(--bg);
+  color:var(--ink); font-family:var(--sans); line-height:1.62;
+  -webkit-font-smoothing:antialiased; padding-bottom:90px;
+}
+.wrap{max-width:980px;margin:0 auto;padding:22px 18px 0}
+a{color:var(--found)}
+
+/* ---------- header ---------- */
+.top{
+  position:sticky;top:0;z-index:30;margin:0 -18px 18px;padding:16px 18px 14px;
+  background:linear-gradient(180deg,#FFFFFFf5, #FFFFFFea 70%, #FFFFFFc4);
+  backdrop-filter:blur(9px);border-bottom:1px solid var(--line);
+}
+.brandrow{display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.32em;color:var(--faint);text-transform:uppercase}
+.h1{font-size:clamp(21px,4.4vw,30px);font-weight:800;letter-spacing:.01em;line-height:1.15;margin:3px 0 2px}
+.h1 b{color:var(--found)}
+.sub{color:var(--dim);font-size:13.5px;max-width:60ch;margin-top:4px}
+.clockbox{margin-left:auto;text-align:right;min-width:150px}
+.clock{font-family:var(--mono);font-size:26px;font-weight:700;letter-spacing:.04em;line-height:1;color:var(--ink)}
+.nowdoing{font-size:11.5px;color:var(--dim);margin-top:5px;max-width:210px;display:inline-block}
+.nowdoing b{color:var(--found);font-weight:700}
+.pbar{height:7px;border-radius:99px;background:#E8EFE8;border:1px solid var(--line);margin-top:13px;overflow:hidden}
+.pfill{height:100%;width:0;background:linear-gradient(90deg,var(--found),var(--done));transition:width .5s cubic-bezier(.2,.7,.2,1)}
+.pmeta{display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;color:var(--faint);margin-top:6px;letter-spacing:.04em}
+.pmeta b{color:var(--done)}
+
+/* ---------- generic blocks ---------- */
+details{border:1px solid var(--line);border-radius:13px;background:var(--surface);margin-bottom:16px;overflow:hidden;box-shadow:0 1px 2px rgba(20,40,28,.04)}
+summary{cursor:pointer;list-style:none;padding:13px 16px;font-weight:700;font-size:14.5px;display:flex;align-items:center;gap:10px;color:var(--ink)}
+summary::-webkit-details-marker{display:none}
+summary .chev{margin-left:auto;color:var(--faint);font-family:var(--mono);transition:transform .25s}
+details[open] summary .chev{transform:rotate(90deg)}
+.dot{width:8px;height:8px;border-radius:99px;flex:none}
+.inner{padding:2px 16px 16px}
+.inner p{margin:.5em 0;color:var(--dim);font-size:13.5px}
+.inner strong{color:var(--ink)}
+
+.brief summary{color:var(--ink)}
+.brief .inner li{color:var(--dim);font-size:13px;margin:7px 0}
+.warn{color:var(--build)}
+
+/* ---------- must-do nine ---------- */
+.must{border:1px solid var(--line2);border-radius:15px;background:
+  linear-gradient(180deg,#FFFFFF,#F2F9F4);margin-bottom:20px;overflow:hidden;box-shadow:0 2px 10px -6px rgba(30,158,87,.22)}
+.must>summary{padding:15px 17px;font-size:15px}
+.must .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.22em;color:var(--found);
+  border:1px solid #AEDCC2;background:var(--found-d);padding:3px 8px;border-radius:7px}
+.grid9{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:4px 15px 16px}
+.cell{background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:11px 12px;
+  position:relative;transition:border-color .2s,transform .12s,box-shadow .2s}
+.cell:hover{border-color:#AEDCC2;transform:translateY(-1px);box-shadow:0 8px 20px -12px rgba(30,158,87,.45)}
+.cell .n{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--found)}
+.cell h4{margin:5px 0 6px;font-size:13.2px;line-height:1.35;font-weight:700;color:var(--ink)}
+.cell .src{font-size:11.5px;color:var(--faint)}
+.cell .src b{color:var(--found);font-weight:600}
+@media(max-width:760px){.grid9{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:470px){.grid9{grid-template-columns:1fr}}
+
+/* ---------- timeline ---------- */
+.tl-head{display:flex;align-items:baseline;gap:12px;margin:4px 2px 12px}
+.tl-head h2{font-size:16px;font-weight:800;letter-spacing:.02em;margin:0;color:var(--ink)}
+.tl-head .legend{margin-left:auto;display:flex;gap:13px;font-size:11px;color:var(--faint);font-family:var(--mono)}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:99px;margin-right:5px;vertical-align:middle}
+
+.timeline{position:relative;margin-left:6px;padding-left:30px;border-left:2px solid var(--line2)}
+.row{position:relative;margin-bottom:14px}
+.node{position:absolute;left:-39px;top:16px;width:15px;height:15px;border-radius:99px;background:var(--surface);
+  border:2.5px solid var(--line2);transition:.2s}
+.row.found .node{border-color:var(--found)}
+.row.build .node{border-color:var(--build)}
+.row.sprint .node{border-color:var(--sprint)}
+.row.meal .node,.row.brk .node{border-style:dashed;border-color:var(--faint)}
+.row.done .node{background:var(--done);border-color:var(--done);box-shadow:0 0 0 4px rgba(47,168,95,.18)}
+.row.live .node{border-color:var(--live);background:var(--live);box-shadow:0 0 0 5px rgba(16,194,106,.26);animation:pulse 1.8s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 5px rgba(16,194,106,.26)}50%{box-shadow:0 0 0 9px rgba(16,194,106,.10)}}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:13px;overflow:hidden;transition:border-color .2s,box-shadow .2s,opacity .3s;box-shadow:0 1px 2px rgba(20,40,28,.05)}
+.row.found .card{border-left:3px solid var(--found)}
+.row.build .card{border-left:3px solid var(--build)}
+.row.sprint .card{border-left:3px solid var(--sprint)}
+.row.live .card{box-shadow:0 0 0 1.5px var(--live), 0 14px 32px -18px rgba(16,194,106,.55);border-color:var(--live)}
+.row.done .card{opacity:.6}
+.row.done .card:hover{opacity:1}
+
+.chead{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;cursor:pointer}
+.time{font-family:var(--mono);font-size:13px;font-weight:700;letter-spacing:.02em;white-space:nowrap;padding-top:1px}
+.row.found .time{color:var(--found)} .row.build .time{color:var(--build)} .row.sprint .time{color:var(--sprint)}
+.row.meal .time,.row.brk .time{color:var(--faint)}
+.tmin{font-size:10.5px;color:var(--faint);font-weight:500;display:block}
+.ctitle{flex:1;min-width:0}
+.tag{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+.ctitle h3{margin:1px 0 0;font-size:15px;font-weight:700;line-height:1.32;color:var(--ink)}
+.livechip{font-family:var(--mono);font-size:10px;font-weight:700;color:#fff;background:var(--live);
+  padding:2px 7px;border-radius:6px;letter-spacing:.08em;align-self:center;display:none}
+.row.live .livechip{display:inline-block}
+.check{appearance:none;-webkit-appearance:none;width:23px;height:23px;border-radius:7px;border:2px solid var(--line2);
+  background:#fff;cursor:pointer;flex:none;position:relative;align-self:center;transition:.15s}
+.check:hover{border-color:var(--done)}
+.check:checked{background:var(--done);border-color:var(--done)}
+.check:checked::after{content:"";position:absolute;left:7px;top:3px;width:5px;height:10px;border:solid #fff;border-width:0 2.5px 2.5px 0;transform:rotate(45deg)}
+.check:focus-visible{outline:2px solid var(--live);outline-offset:2px}
+
+.body{padding:0 14px 14px;border-top:1px solid var(--line);display:none}
+.card.open .body{display:block}
+.seg{margin-top:11px}
+.seg .lab{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);display:flex;align-items:center;gap:6px}
+.seg .lab::before{content:"";width:5px;height:5px;border-radius:99px;background:var(--faint)}
+.seg.look .lab::before{background:var(--found)} .seg.drill .lab::before{background:var(--build)}
+.seg.goal .lab::before{background:var(--sprint)} .seg.chk .lab::before{background:var(--done)}
+.seg p,.seg ul{margin:5px 0 0;font-size:13.3px;color:var(--dim)}
+.seg ul{padding-left:18px} .seg li{margin:3px 0}
+.seg b{color:var(--ink);font-weight:600}
+.seg .key{color:var(--build);font-weight:600}
+.seg.chk p{color:#14663B;background:#ECF7F0;border:1px solid #BFE4CD;border-radius:8px;padding:8px 11px;font-size:12.8px}
+.meal-note{padding:0 14px 13px;font-size:12.8px;color:var(--faint)}
+.row.meal .card,.row.brk .card{background:#F4F6F4}
+
+/* ---------- data card ---------- */
+.data summary{font-size:15px}
+.dgrid{display:grid;grid-template-columns:1fr 1fr;gap:13px;padding:4px 16px 14px}
+@media(max-width:680px){.dgrid{grid-template-columns:1fr}}
+.dbox{background:var(--surface2);border:1px solid var(--line);border-radius:11px;padding:12px 13px}
+.dbox h5{margin:0 0 7px;font-size:12.5px;font-family:var(--mono);letter-spacing:.1em;color:var(--build)}
+.dbox.v h5{color:var(--found)}
+.dbox ul{margin:0;padding-left:16px;font-size:12.7px;color:var(--dim)}
+.dbox li{margin:4px 0} .dbox b{color:var(--ink)}
+.num{font-family:var(--mono);color:var(--found);font-weight:700}
+.mantra{padding:0 16px 16px}
+.mantra .box{background:#FBF4E4;border:1px solid #E9D6AB;border-radius:11px;padding:12px 14px;font-size:13px;color:#6E5117}
+.mantra b{color:var(--build)}
+
+/* ---------- footer ---------- */
+.foot{border-top:1px solid var(--line);margin:24px -18px 0;padding:22px 18px 30px;color:var(--dim);font-size:13.5px}
+.foot .big{font-size:15.5px;color:var(--ink);font-weight:700;margin-bottom:7px;line-height:1.4}
+.foot .sig{font-family:var(--mono);font-size:11px;color:var(--faint);margin-top:14px;letter-spacing:.04em}
+
+/* ---------- jump btn ---------- */
+.jump{position:fixed;right:16px;bottom:18px;z-index:40;font-family:var(--mono);font-size:12.5px;font-weight:700;
+  letter-spacing:.05em;color:#fff;background:var(--live);border:none;border-radius:11px;padding:11px 15px;
+  cursor:pointer;box-shadow:0 8px 24px -8px rgba(16,194,106,.6)}
+.jump:active{transform:translateY(1px)}
+.jump:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="brandrow">
+      <div>
+        <div class="eyebrow">机器人传感技术 · 期末满分作战</div>
+        <div class="h1">一日总攻 · <b>满分计划</b></div>
+        <div class="sub">一天，三章 ＋ 两个你亲手跑通的项目 ＋ 九个已知必考点。一个一个收掉它们——满分是排兵布阵算出来的，不是赌出来的。</div>
+      </div>
+      <div class="clockbox">
+        <div class="clock" id="clock">--:--</div>
+        <div class="nowdoing" id="nowdoing">现在该做：<b>—</b></div>
+      </div>
+    </div>
+    <div class="pbar"><div class="pfill" id="pfill"></div></div>
+    <div class="pmeta"><span id="pcount">已拿下 0 / 14 个学习块</span><span><b id="ppct">0%</b> 完成</span></div>
+  </header>
+
+  <details class="brief">
+    <summary><span class="dot" style="background:var(--faint)"></span>战前必读 · 三句实话与用法 <span class="chev">▸</span></summary>
+    <div class="inner">
+      <p style="color:var(--ink)"><b>怎么用这一页：</b>跟着时间轴走，点每个块的标题展开看「看什么 / 练什么 / 掌握到 / 过关检验」。做完一块就勾掉它——顶部进度条会涨，进度会自动存在本机（换设备或清缓存会重置）。当前时段对应的块会<span style="color:var(--found)">高亮为绿色</span>并轻轻跳动，右下角「跳到现在」一键定位。</p>
+      <ul>
+        <li><b class="warn">关于"满分"，把话说在前面：</b>没有任何计划能100%保证满分，但这份计划已把"已知该会的"全覆盖，把你可能的出错面压到最小。剩下的，交给你今天的执行力，和最后那一觉。</li>
+        <li><b class="warn">九大必考点来自"大家回忆"，不是官方原题。</b>按高频对待、优先吃透，但<b>别把其它内容落下</b>——尤其第二章是老师明确的"重中之重"，照样会考得细。</li>
+        <li><b class="warn">复习课录音有少量语音转写噪声，已按 PPT 校正。</b>最典型一处:静态标准条件是 <b>室温 20±5℃</b>(录音里听着像"±50℃",是口误/转写错,以 PPT 为准)。</li>
+      </ul>
+    </div>
+  </details>
+
+  <details class="must" open>
+    <summary><span class="lbl">最高优先级</span>九大必考点 · 命中即得分（含资源定位）<span class="chev">▸</span></summary>
+    <div class="grid9">
+      <div class="cell"><div class="n">01</div><h4>感知系统由哪些部分组成（结合项目）</h4><div class="src">设计台 · <b>通用①</b>　＋　课内Ch1<br>用你的听觉项目讲软件链</div></div>
+      <div class="cell"><div class="n">02</div><h4>机器人传感器 vs 普通传感器的区别</h4><div class="src">设计台 · <b>通用②</b></div></div>
+      <div class="cell"><div class="n">03</div><h4>高噪声场景怎么去噪</h4><div class="src">设计台 · <b>听觉⑨</b></div></div>
+      <div class="cell"><div class="n">04</div><h4>给一个听觉/视觉任务，怎么设计技术路线</h4><div class="src">设计台 · <b>通用③</b>　＋　听觉①/视觉①做素材</div></div>
+      <div class="cell"><div class="n">05</div><h4>听觉落地：要考虑机器人哪些特性与客观因素</h4><div class="src">设计台 · <b>听觉⑧</b></div></div>
+      <div class="cell"><div class="n">06</div><h4>实现机器人听觉的路线 / 模块 / 方法 / 器件选型</h4><div class="src">设计台 · <b>听觉①②④</b>（③讲选型）</div></div>
+      <div class="cell"><div class="n">07</div><h4>AEC 回声消除 · 避免自触发 · 区分自己与客户</h4><div class="src">设计台 · <b>听觉⑦</b></div></div>
+      <div class="cell"><div class="n">08</div><h4>老师课上演示的智能语音助手怎么实现</h4><div class="src">设计台 · <b>听觉⑭</b></div></div>
+      <div class="cell"><div class="n">09</div><h4>智能小车为何做多传感器融合（激光雷达＋视觉）</h4><div class="src">设计台 · <b>视觉⑩</b></div></div>
+    </div>
+  </details>
+
+  <div class="tl-head">
+    <h2>当日时间轴</h2>
+    <div class="legend">
+      <span><i style="background:var(--found)"></i>课内打底</span>
+      <span><i style="background:var(--build)"></i>设计冲刺</span>
+      <span><i style="background:var(--sprint)"></i>整合总攻</span>
+    </div>
+  </div>
+  <main class="timeline" id="timeline"></main>
+
+  <details class="data">
+    <summary><span class="dot" style="background:var(--build)"></span>速记数据卡 · 考前默写用（数字均来自你的项目报告/附录，已逐条核对）<span class="chev">▸</span></summary>
+    <div class="dgrid">
+      <div class="dbox">
+        <h5>听觉 · 核心数据</h5>
+        <ul>
+          <li>控制指令准确率 <span class="num">97%</span>，平均响应 <span class="num">0.12s</span>，容错使可用率提升约 <span class="num">+17%</span></li>
+          <li>问答识别准确率 <span class="num">100%</span>；简单题均 <span class="num">0.21s</span>、复杂题均 <span class="num">2.14s</span></li>
+          <li>连续运行 <span class="num">10min+</span> 无崩溃、无自触发；测试 3 台机各 10 组控制＋10 组问答</li>
+          <li>五类控制指令：前进/后退/左转/右转/停止（＋复合、连续）</li>
+        </ul>
+      </div>
+      <div class="dbox">
+        <h5>听觉 · 关键参数</h5>
+        <ul>
+          <li>采样率 <span class="num">16kHz</span>；VAD 取最高档</li>
+          <li>能量门限：通用 <span class="num">180</span> / 控制 <span class="num">120</span></li>
+          <li>最短语句：通用 <span class="num">0.7s</span> / 控制 <span class="num">0.45s</span>，最长 8s</li>
+          <li>声纹阈值：控制常规 <span class="num">0.42</span> / 控制短口令 <span class="num">0.38</span> / 问答 <span class="num">0.50</span>；注册累计 3s</li>
+          <li>播放后抑制窗 ≈ <span class="num">0.5s</span>；看门狗超时 <span class="num">10s</span></li>
+        </ul>
+      </div>
+      <div class="dbox">
+        <h5>听觉 · 选型与"不选"</h5>
+        <ul>
+          <li>识别 <b>SenseVoiceSmall</b>，<b>不用 Whisper</b>（延迟＋显存超标）</li>
+          <li>声纹 <b>CAM++</b>（参数 ≈ <span class="num">7.2M</span>）；大模型 <b>Qwen2.5-1.5B</b> 指令版（量化后显存 <span class="num">&lt;3G</span>）</li>
+          <li>切段 <b>WebRTC VAD ＋ 能量阈值</b>；合成 <b>edge-tts</b>；日志 <b>JSONL</b></li>
+        </ul>
+      </div>
+      <div class="dbox v">
+        <h5>视觉 · 核心数据</h5>
+        <ul>
+          <li>4 个核心地点单点导航成功率 <span class="num">100%</span></li>
+          <li>到达误差 <span class="num">0.33–0.4m</span>，均在 <span class="num">0.55m</span> 容差内</li>
+          <li>地图约 <span class="num">220×180</span> 栅格，分辨率 <span class="num">0.05m</span></li>
+          <li>合成图像识别正确率 <span class="num">100%</span>，空白防误报有效；端到端 4 步全完成</li>
+        </ul>
+      </div>
+      <div class="dbox v">
+        <h5>视觉 · 参数与"不选"</h5>
+        <ul>
+          <li>局部期望线速度 <span class="num">0.25m/s</span>，前视距离 <span class="num">0.45m</span>；轮距 0.45m、轮半径 0.075m</li>
+          <li>TF 树：map→odom→base→各传感器；<b>全系统统一仿真时间</b>，发目标用最新可用变换</li>
+          <li>全局 <b>Navfn</b>（不用 Smac Hybrid）、局部 <b>RPP 调节型纯追踪</b>（不用 MPPI）、语义 <b>HSV 阈值</b>（不用 YOLO）</li>
+          <li>"不选"统一理由：轻量 / 确定 / 可解释 / 虚拟机上稳定</li>
+        </ul>
+      </div>
+      <div class="dbox v">
+        <h5>视觉 · 签名问题（必背）</h5>
+        <ul>
+          <li><b>仿真时间轴混用</b>：Gazebo/TF 用仿真时间（十几秒）、部分节点用墙上时间（17 亿秒，差约 <span class="num">56 年</span>）→ Nav2 报"变换太旧"＋秒判到达却不动</li>
+          <li>三步解：①全节点＋RViz 设 use_sim_time ②发目标 stamp=0 取最新变换 ③清残留进程重启</li>
+        </ul>
+      </div>
+    </div>
+    <div class="mantra">
+      <div class="box"><b>万能答题口诀：</b>是什么 → 为什么这么选、为什么不选别的 → 怎么实现 → 遇到什么问题怎么解决 → 用数据说话 → 最后一句回扣到"机器人传感系统的完整闭环"。<b>被问到没做的地方：</b>坦诚承认 ＋ 说清原因（多半是算力或稳定性取舍）＋ 给未来方案，绝不编造。</div>
+    </div>
+  </details>
+
+  <footer class="foot">
+    <div class="big">你不是从零开始的。</div>
+    <p>这两套系统是你自己跑通的，那些坑——共享麦克风的自触发、五十六年的时间戳、map 坐标系不存在——是你一行一行调出来、填平的。今天做的不是"学新东西"，而是把脑子里<b style="color:var(--ink)">已经有的东西</b>排好队、说清楚、不漏点。</p>
+    <p>累了就按计划休息，困了宁可眯十五分钟也别硬撑——24:00 必须合上书，<b style="color:var(--ink)">那一觉是计划的一部分</b>，睡眠会把你今天背的东西固化进长期记忆。稳住节奏，明天坐进考场你会发现：原来我是真的都会。</p>
+    <div class="sig">// 把每一个块点亮成绿色，就是你今晚最好的成绩单。加油。</div>
+  </footer>
+</div>
+
+<button class="jump" id="jumpNow">跳到现在 ▾</button>
+
+<script>
+const PHASE_NAME={found:"课内 · 打底",build:"设计 · 冲刺",sprint:"整合 · 总攻"};
+const S=[
+ {s:"07:00",e:"07:30",k:"meal",t:"早餐 · 启动",note:"先吃饭、把人叫醒。想看就扫一眼上面「九大必考点」的标题，不强求——这一口饭是为了后面 16 小时能扛住。"},
+
+ {s:"07:30",e:"08:25",k:"found",tag:"课内 · 第1章 + 第2章总览",t:"传感器与机器人感知系统 · 打地基",
+  look:["课内题训练台 →「复习指南」第一章全部 ＋ 第二章“静/动态特性”开头总览","你的 Mubu 笔记里第一章相关节点（定义、分类）","底料来源：三份 PPT 的系统部分"],
+  drill:["课内题训练台 →「题库」筛 <b>第1章</b>（9 选择／3 填空／2 简答），边读边做、看解析"],
+  goal:["说清传感器定义（GB/T 7665：<b>敏感元件 ＋ 转换元件</b>）","三套分类维度张口就来：工作原理（<b>物性型 / 结构型</b>）、能量关系（<b>能量控制型(外源) / 转换型(自源)</b>）、输出（模拟 / 数字）","机器人<b>内部 vs 外部</b>传感器，各举 3 例（内：编码器/测速/电机转速/内部位移/温度；外：触觉/图像/超声测距）","分清 sensor / transducer / actuator","感知系统组成链：被测量 → 硬件〔传感器·信号调理·接口电路〕→ 软件〔数据校验·信息融合·综合决策·数据库〕"],
+  chk:"合上书，口述“机器人感知系统由哪几部分组成”，并各举一个内部、外部传感器的例子。"},
+
+ {s:"08:25",e:"09:55",k:"found",tag:"课内 · 第2章 静态特性【重中之重】",t:"静态特性七项 · 全章核心",
+  look:["课内题训练台 →「复习指南」第二章静态特性全段","Mubu 笔记：线性度 / 灵敏度 / 分辨力 / 迟滞 / 重复性 / 漂移 / 精度三兄弟 各节点（深读）"],
+  drill:["课内题训练台 →「题库」筛 <b>第2章</b> 选择(15)＋填空(6)，逐题做、吃透解析"],
+  goal:["<b>线性度</b>：四种拟合直线法的差别与优劣——理论直线法 / 端点法 / 最佳直线法 / <b>最小二乘法</b>（最常用，因有解析解）","<b>灵敏度</b> dy/dx；会答“是否越大越好”——<span class='key'>不一定</span>，太大会放大噪声/干扰，举应变片弯折损失灵敏度的例子","<b>分辨力</b>(绝对值·带单位·死区上限) vs <b>分辨率</b>(相对值·比率·最大值÷量程)——必须能区分","<b>迟滞</b>(上下行曲线最大差÷量程，比率无单位，成因＝惯性/摩擦)、<b>重复性</b>、<b>漂移</b>(零点漂移＋灵敏度漂移)","<b>精确度 / 精密度 / 正确度</b>三者区分（正确度＝接近真值；精密度＝分散小；精确度＝两者兼得）"],
+  chk:"连答三问不卡：①分辨力和分辨率的区别 ②灵敏度越大越好吗、为什么 ③精密度/正确度/精确度怎么分。"},
+
+ {s:"09:55",e:"10:05",k:"brk",t:"小憩 10 分钟",note:"站起来走动、远眺、补水。别碰手机——刷进去就出不来了。让刚塞进去的东西沉淀一下。"},
+
+ {s:"10:05",e:"10:55",k:"found",tag:"课内 · 第2章 标定 + 动态特性",t:"静态标定（必背）＋ 动态特性概念",
+  look:["课内题训练台 →「复习指南」第二章 静态标定 / 动态特性段","Mubu 笔记：标定条件、一阶/二阶系统节点"],
+  drill:["课内题训练台 →「题库」筛 <b>第2章</b> 简答(5)"],
+  goal:["<b>【一字不差背下来】静态标准条件</b>：① 无加速度、振动、冲击；② <span class='key'>室温 20±5℃</span>、相对湿度 &lt;85%、大气压 <span class='key'>101±7 kPa</span>","动态特性两种分析法：<b>阶跃响应＝时域</b>、<b>频率响应＝频域</b>","一阶指标（时间常数 τ、上升时间、延迟时间）；二阶指标（峰值时间、超调量、稳态误差、固有频率、阻尼比）——<b>只记概念，不要求算</b>","精度合成：线性度/迟滞/重复性三项误差，方和根或代数和"],
+  chk:"闭眼背出静态标准条件全部三项数值；再说出一阶、二阶各两个动态指标的名字。"},
+
+ {s:"10:55",e:"12:25",k:"found",tag:"课内 · 第3章 电阻式传感器",t:"应变效应 · 压阻效应 · 电桥 · 温度误差",
+  look:["课内题训练台 →「复习指南」第三章全部","Mubu 笔记：应变效应 / 压阻效应 / 电桥 节点"],
+  drill:["课内题训练台 →「题库」筛 <b>第3章</b>（10 选择／5 填空／4 简答）全做"],
+  goal:["组成链：弹性敏感元件〔梁/膜，随力或加速度形变〕→ 应变片〔转换元件，形变→电阻变化〕→ 电桥电路〔输出〕","<b>【核心区分】应变效应</b>(金属，<b>几何形变</b>主导，ΔR/R＝K·ε，ε＝应变) vs <b>压阻效应</b>(半导体，受力时<b>电阻率剧变</b>主导，灵敏度高、体积小)","应变片灵敏度＝输出电阻变化率 ÷ 输入应变；多根丝弯折 → 放大","<b>【重中之重】温度误差</b>成因：电阻丝与基底膨胀系数不同 → 相互掣肘产生<b>附加形变</b> → 读数偏大（并非真实被测量）","电桥四型（等臂 / 单臂 / 双臂 / 全桥）灵敏度与线性度差异（全桥灵敏度最高、线性最好）"],
+  chk:"一句话说清“应变效应和压阻效应的区别”；再解释“电阻应变片的温度误差是怎么产生的”。"},
+
+ {s:"12:25",e:"13:00",k:"meal",t:"午餐 · 给大脑放空",note:"先彻底放空十分钟再吃。上午是硬骨头（三章打底），啃下来了。如果犯困，宁可眯 15 分钟也别硬撑着进下午——下午全是你熟悉的项目，状态好才背得快。"},
+
+ {s:"13:00",e:"14:30",k:"build",tag:"设计 · 听觉 ①②③④⑤",t:"听觉：技术路线 / 模块 / 选型 / 器件 / 双链路",
+  look:["综合设计题背诵台 →「背诵」模式，听觉 <b>第①~⑤题</b>（思路 → 关键词 → 参考答案 三层）"],
+  drill:["每题先盖住答案、自己讲思路并命中关键词，再翻开核对；卡住才看提示"],
+  goal:["①<b>技术路线</b>：不是单一识别程序，而是“语音输入→识别理解→行为执行→语音反馈”的<b>可运行闭环</b>","②③④ 选型与器件——会逐模块讲“选了什么＋为什么不选另一个”：识别 <b>SenseVoiceSmall</b>(不用 Whisper：延迟/显存超标)、声纹 <b>CAM++</b>(≈7.2M)、大模型 <b>Qwen2.5-1.5B</b>(量化后&lt;3G)、合成 <b>edge-tts</b>、切段 <b>WebRTC VAD＋能量阈值</b>","⑤<b>双链路</b>：控制链路(低时延/强约束/可打断) vs 问答链路(唤醒/声纹/自然交互)，<b>模式互斥</b>、共享同一麦克风"],
+  chk:"口述 ASR 四阶段演进主线（HMM+SVM → Whisper → 云端 → SenseVoice）；说清“为什么要双链路、两条链路怎么分工”。"},
+
+ {s:"14:30",e:"15:40",k:"build",tag:"设计 · 听觉 ⑥⑦⑧⑨⑭【考点密集区】",t:"声纹 · AEC · 落地 · 去噪 · 语音助手",
+  look:["综合设计题背诵台 → 听觉 <b>第⑥⑦⑧⑨题 ＋ 第⑭题</b>"],
+  drill:["这 5 题正好命中 <b>九大必考点里的 5 个</b>，逐题“思路＋全部关键词＋核心答案”出声背两遍"],
+  goal:["⑥<b>声纹</b>：为什么做(辨说话人/防误唤醒)＋怎么做(CAM++、注册 3s、阈值分档 0.42/0.38/0.50)","⑦<b>【必考】AEC</b>：避免自触发(播放后抑制窗≈0.5s、模式互斥、看门狗 10s)；区分自己 vs 客户(<b>声纹比对</b>)","⑧<b>落地考虑</b>：机器人特性(共享麦克风/本地算力/实时性/可打断) ＋ 客观因素(噪声/混响/多说话人)","⑨<b>【必考】高噪声去噪</b>：能量门限(通用 180/控制 120)＋VAD 最高档＋最短语句门限(0.7s/0.45s)＋声纹/唤醒兜底","⑭ 老师课上演示的智能语音助手的实现路径"],
+  chk:"完整答“什么是 AEC、如何避免自触发、如何区分自己和客户”；再答“高噪声场景怎么去噪”，至少列 3 个手段。"},
+
+ {s:"15:40",e:"15:50",k:"brk",t:"小憩 10 分钟",note:"下午过半。起身、活动颈肩、看看远处。马上进入听觉收尾＋整个视觉项目，给眼睛喘口气。"},
+
+ {s:"15:50",e:"16:30",k:"build",tag:"设计 · 听觉 ⑩⑪⑫⑬⑮",t:"听觉收尾【考“参与度 + 独立思考”】",
+  look:["综合设计题背诵台 → 听觉 <b>第⑩⑪⑫⑬⑮题</b>"],
+  drill:["重点背 <b>⑪复现反思</b> 和 <b>⑫AI 工具使用</b>——这两题专门考“你自己的思考、参与度”，必须讲成“<b>我的决策故事</b>”，不是套话"],
+  goal:["⑩ 问题与解决（按“现象→根因→解决”结构讲）","⑪ <b>复现开源失败的结论</b>：“上层控制代码的通用性，掩盖不了底层驱动的异构性”→ 由此<b>坚定转向更可控的双链路</b>（这是你的判断，最能体现参与度）","⑫ <b>AI 工具的诚实定位</b>：辅助查错/写样板，核心架构与取舍是自己做的——绝不能说“全靠 AI”","⑬ 测试数据；⑮ 拓展方向"],
+  chk:"用 30 秒讲清“你为什么从复现别人的项目，转向自研双链路”——这一段要讲出你自己的判断。"},
+
+ {s:"16:30",e:"18:00",k:"build",tag:"设计 · 视觉 ①~⑬（全部）",t:"视觉项目全线：SLAM / AMCL / Nav2 / 融合 / 时间轴",
+  look:["综合设计题背诵台 → 视觉 <b>第①~⑬题</b>（13 题，约 7 分钟/题）"],
+  drill:["这个项目你亲手做过，重点把<b>术语</b>和每个“<b>不选 X</b>”的理由背准"],
+  goal:["①②③ 路线/模块/选型；④ 器件迁移；⑤ SLAM 建图原理；⑥ AMCL 定位(为什么需要)；⑦ Nav2 框架工作流；⑧ 语义识别(<b>HSV 阈值，不用 YOLO</b>)；⑨ MissionServer 状态机","⑩<b>【必考】多传感器融合</b>理由：激光雷达测距准但无语义 ＋ 视觉有语义但测距弱 → <b>互补</b>","⑪<b>【签名问题·必背】仿真时间轴混用</b>：Gazebo/TF 用仿真时间(十几秒) vs 部分节点用墙上时间(17 亿秒，差约 56 年)→ Nav2 报“变换太旧”＋秒判到达却不动；<b>三步解</b>：全节点＋RViz 设 use_sim_time / 发目标 stamp=0 取最新变换 / 清残留进程重启","选型口径统一：<b>Navfn</b> 不用 Smac、<b>RPP</b> 不用 MPPI、<b>HSV</b> 不用 YOLO——理由都是轻量/确定/可解释/虚拟机稳定"],
+  chk:"答“小车为什么要做激光雷达＋视觉的多传感器融合”；再复述“仿真时间轴”那个 bug 的现象、根因、三步解决。"},
+
+ {s:"18:00",e:"18:35",k:"meal",t:"晚餐 · 离桌休息",note:"离开书桌吃饭，给眼睛和脑子一个缓冲。三章＋两个项目已经全过了一遍——晚上是整合、口答、模拟和查漏，把今天学的东西“焊死”。"},
+
+ {s:"18:35",e:"19:35",k:"sprint",tag:"整合 · 通用 ①②③",t:"通用设计题 ＋ 跨章联系",
+  look:["综合设计题背诵台 → 通用 <b>第①②③题</b>","回看课内 Ch1 的“感知系统组成”，和通用①对照"],
+  drill:["把“感知系统组成”用 ①课内框架 ＋ ②你的听觉项目 <b>双重</b>讲一遍——老师明确要这种“概念↔项目”的联系"],
+  goal:["通用①<b>感知组成结合项目</b>：麦克风＝被测量采集 → 驱动/接口＝接口电路 → 丢帧校验＝数据校验 → 识别模型＝信息融合 → 录音＝数据库 → 输出文字＝综合决策","通用②<b>机器人传感器 vs 普通传感器</b>：多源融合 / 服务于自身行动决策 / 有内外部之分 / 实时闭环","通用③<b>开放式技术路线设计法</b>：明确任务 → 拆模块 → 选方法 → 定器件 → 闭环验证；能现场套到任意新的听觉/视觉任务上"],
+  chk:"不看书，把通用②、通用③ 完整口答一遍。"},
+
+ {s:"19:35",e:"20:45",k:"sprint",tag:"整合 · 九大必考点 专项",t:"九大考点 · 出声模拟答题冲刺",
+  look:["对照本页顶部「<b>九大必考点</b>」卡片，逐条过"],
+  drill:["每条都<b>出声</b>模拟答：先讲思路结构 → 逐一蹦关键词 → 给核心答案 → 自评有没有漏点。卡壳的立刻回去翻对应题"],
+  goal:["9 条全部能在 2~3 分钟内<b>冷启动</b>作答、关键词不漏。建议顺序：①感知组成 → ②传感器区别 → ③去噪 → ④技术路线设计 → ⑤听觉落地 → ⑥听觉路线/模块/器件 → ⑦AEC → ⑧语音助手 → ⑨多传感器融合"],
+  chk:"让别人（或随机）从 9 条里挑 3 条，每条限时讲完，关键词命中 ≥ 80%。"},
+
+ {s:"20:45",e:"20:55",k:"brk",t:"小憩 10 分钟",note:"今晚最后一次正经休息。站起来、喝水、深呼吸。后面是收尾性的自测与扫雷，强度会降下来。"},
+
+ {s:"20:55",e:"22:00",k:"sprint",tag:"整合 · 课内模拟自测",t:"课内错题回炉 ＋ 22 张速记卡",
+  look:["课内题训练台 →「必背速记」<b>22 张卡</b>，全部翻面冷答"],
+  drill:["课内题训练台 →「题库」重做今早做错/没把握的题（<b>尤其第2章</b>），可开“只练未掌握”"],
+  goal:["第2章选择题<b>零错</b>；22 张速记卡<b>100%</b>","再冷背一遍：静态标准条件、精度三兄弟、分辨力/分辨率、灵敏度陷阱、应变 vs 压阻、电桥四型"],
+  chk:"第2章整章选择连续做对；任意抽 3 张速记卡，秒答。"},
+
+ {s:"22:00",e:"23:00",k:"sprint",tag:"整合 · 设计题模拟",t:"关键词扫描 ＋ 数据默写 ＋ 抽问",
+  look:["综合设计题背诵台 →「关键词」模式（每个采分词盖住自测）＋「附录速记」整页","本页「速记数据卡」"],
+  drill:["模拟抽问 3 题（课内＋设计混搭），出声答完整"],
+  goal:["所有关键词都能逐一蹦出","附录数据冷背：控制 97%/0.12s/+17%、问答 100%/0.21s/2.14s、导航 100%/误差 0.33–0.4m/容差 0.55m/地图≈220×180/栅格 0.05m、字错率&lt;8%、SenseVoice 比 Whisper 快≈5×、CAM++≈7.2M","每个“不选 X”结论清晰"],
+  chk:"默写听觉三个声纹阈值(0.42/0.38/0.50)与导航误差/容差；说出三个“不选 X”及其理由。"},
+
+ {s:"23:00",e:"23:45",k:"sprint",tag:"整合 · 全局扫雷",t:"易错点最后一遍 · 把陷阱踩平",
+  look:["两个平台里所有 <b>橙/红高亮</b>（易错 / 必背 / 老师点名）","本页九大考点再扫一遍"],
+  drill:["集中盯易错点，逐条自问自答"],
+  goal:["静态标准条件是 <b>20±5℃</b>（不是 ±50，那是转写口误）","分辨力 ≠ 分辨率；灵敏度<b>非</b>越大越好；应变(金属) ≠ 压阻(半导体)；电桥四型差异","双链路<b>模式互斥</b>；AEC 三件套；多传感器<b>互补</b>"],
+  chk:"把易错清单逐条自问自答一遍，全程不卡壳。"},
+
+ {s:"23:45",e:"24:00",k:"sprint",tag:"整合 · 收尾",t:"睡前 15 分钟 · 合上书",
+  look:["只挑此刻仍发虚的 1~2 个点，再扫一眼"],
+  drill:["准备好准考证 / 文具 / 计算器（若允许带），定好闹钟"],
+  goal:["心里有数，<b>放下书</b>。这一觉是计划的一部分——睡眠会把你今天背的东西固化进长期记忆，<b>千万别熬过点</b>"],
+  chk:"关灯睡觉，就是今天最后一道过关题。"},
+];
+
+const tl=document.getElementById('timeline');
+const studyIds=[];
+S.forEach((b,i)=>{
+  const row=document.createElement('div');
+  row.className='row '+b.k; row.dataset.s=b.s; row.dataset.e=b.e; row.id='r'+i;
+  const dur=tmin(b.e)-tmin(b.s);
+  let inner='<div class="node"></div><div class="card" id="c'+i+'">';
+  const isStudy=(b.k==='found'||b.k==='build'||b.k==='sprint');
+  inner+='<div class="chead">'+
+    '<div class="time">'+b.s+'–'+b.e+'<span class="tmin">'+dur+' 分钟</span></div>'+
+    '<div class="ctitle">'+(b.tag?'<span class="tag">'+b.tag+'</span>':'<span class="tag">'+(b.k==='meal'?'用餐':'休息')+'</span>')+
+      '<h3>'+b.t+'</h3></div>'+
+    '<span class="livechip">现在</span>';
+  if(isStudy){inner+='<input type="checkbox" class="check" data-i="'+i+'" aria-label="标记完成">'; studyIds.push(i);}
+  inner+='</div>';
+  if(isStudy){
+    inner+='<div class="body">';
+    inner+=seg('look','看什么',b.look);
+    inner+=seg('drill','练什么',b.drill);
+    inner+=seg('goal','掌握到',b.goal);
+    inner+='<div class="seg chk"><div class="lab">过关检验</div><p>'+b.chk+'</p></div>';
+    inner+='</div>';
+  }else{
+    inner+='<div class="meal-note">'+b.note+'</div>';
+  }
+  inner+='</div>';
+  row.innerHTML=inner;
+  tl.appendChild(row);
+});
+function seg(cls,lab,arr){
+  if(!arr||!arr.length) return '';
+  let h='<div class="seg '+cls+'"><div class="lab">'+lab+'</div>';
+  if(arr.length===1){h+='<p>'+arr[0]+'</p>';}
+  else{h+='<ul>'+arr.map(x=>'<li>'+x+'</li>').join('')+'</ul>';}
+  return h+'</div>';
+}
+function tmin(t){const[a,b]=t.split(':').map(Number);return a*60+b;}
+
+/* expand/collapse card body on title click */
+tl.addEventListener('click',e=>{
+  if(e.target.classList.contains('check')) return;
+  const head=e.target.closest('.chead'); if(!head) return;
+  const card=head.parentElement;
+  if(card.querySelector('.body')) card.classList.toggle('open');
+});
+
+/* ---- progress + persistence (defensive) ---- */
+const KEY='rst_plan_v1';
+let done=new Set();
+try{const raw=localStorage.getItem(KEY); if(raw) done=new Set(JSON.parse(raw));}catch(_){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify([...done]));}catch(_){}}
+function paint(){
+  studyIds.forEach(i=>{
+    const cb=document.querySelector('.check[data-i="'+i+'"]');
+    const row=document.getElementById('r'+i);
+    const on=done.has(i); cb.checked=on; row.classList.toggle('done',on);
+  });
+  const n=done.size, tot=studyIds.length, pct=Math.round(n/tot*100);
+  document.getElementById('pfill').style.width=pct+'%';
+  document.getElementById('pcount').textContent='已拿下 '+n+' / '+tot+' 个学习块';
+  document.getElementById('ppct').textContent=pct+'%';
+}
+tl.addEventListener('change',e=>{
+  if(!e.target.classList.contains('check')) return;
+  const i=+e.target.dataset.i;
+  if(e.target.checked) done.add(i); else done.delete(i);
+  save(); paint();
+});
+paint();
+
+/* ---- live clock + now-tracking ---- */
+let liveRow=null;
+function tick(){
+  const d=new Date();
+  const hh=String(d.getHours()).padStart(2,'0'), mm=String(d.getMinutes()).padStart(2,'0');
+  document.getElementById('clock').textContent=hh+':'+mm;
+  const now=d.getHours()*60+d.getMinutes();
+  let active=null;
+  document.querySelectorAll('.row').forEach(r=>{
+    const s=tmin(r.dataset.s), e=tmin(r.dataset.e);
+    const on=(now>=s&&now<e);
+    r.classList.toggle('live',on);
+    if(on) active=r;
+  });
+  liveRow=active;
+  const nd=document.getElementById('nowdoing');
+  if(active){
+    const t=active.querySelector('h3').textContent;
+    nd.innerHTML='现在该做：<b>'+t+'</b>';
+  }else if(now<tmin('07:00')){
+    nd.innerHTML='还没到 7:00 —— <b>先好好睡，攒满电再开打</b>';
+  }else{
+    nd.innerHTML='今天的计划已收官 —— <b>你做到了</b>';
+  }
+}
+tick(); setInterval(tick,30000);
+
+document.getElementById('jumpNow').addEventListener('click',()=>{
+  if(liveRow){liveRow.scrollIntoView({behavior:'smooth',block:'center'});}
+  else{window.scrollTo({top:document.querySelector('.tl-head').offsetTop-80,behavior:'smooth'});}
+});
+</script>
+</body>
+</html>
